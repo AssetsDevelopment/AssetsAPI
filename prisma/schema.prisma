@@ -1,0 +1,268 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model claim {
+  claim_id      Int             @id @default(autoincrement())
+  order_fk      Int
+  client_fk     Int
+  user_fk       Int
+  cause         String
+  urgency       urgency_options
+  reported_date DateTime        @db.Timestamp(6)
+  is_active     Boolean         @default(true)
+  created_at    DateTime        @default(dbgenerated("'2024-01-12 02:46:05.933902'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at    DateTime        @default(dbgenerated("'2024-01-12 02:46:05.933902'::timestamp without time zone")) @db.Timestamp(6)
+  order         order           @relation(fields: [order_fk], references: [order_id], onDelete: NoAction, onUpdate: NoAction)
+  user          user            @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "claim_user_fkey")
+}
+
+model client {
+  client_id       Int               @id @default(autoincrement())
+  name            String            @db.VarChar(100)
+  is_active       Boolean           @default(true)
+  created_at      DateTime          @default(dbgenerated("'2024-01-12 02:46:05.105098'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at      DateTime          @default(dbgenerated("'2024-01-12 02:46:05.105098'::timestamp without time zone")) @db.Timestamp(6)
+  user            user[]
+  work_invitation work_invitation[]
+}
+
+model client_has_professional {
+  client_fk                  Int
+  professional_fk            Int
+  is_active                  Boolean                      @default(true)
+  created_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.495541'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.495541'::timestamp without time zone")) @db.Timestamp(6)
+  work_invitation            work_invitation              @relation(fields: [client_fk, professional_fk], references: [client_fk, professional_fk], onDelete: NoAction, onUpdate: NoAction, map: "client_has_professional_fkey")
+  order                      order[]
+  treatment_has_professional treatment_has_professional[]
+
+  @@id([client_fk, professional_fk])
+}
+
+model company {
+  company_id                 Int                          @id @default(autoincrement())
+  client_fk                  Int
+  user_fk                    Int
+  name                       String                       @db.VarChar(100)
+  cuit                       String?                      @db.VarChar(20)
+  note                       String?
+  is_active                  Boolean                      @default(true)
+  created_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.535216'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.535216'::timestamp without time zone")) @db.Timestamp(6)
+  user                       user                         @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "company_user_fkey")
+  company_has_treatment      company_has_treatment[]
+  patient                    patient[]
+  treatment_has_professional treatment_has_professional[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model company_has_treatment {
+  client_fk    Int
+  user_fk      Int
+  company_fk   Int
+  treatment_fk Int
+  value        Decimal   @db.Decimal(7, 2)
+  created_at   DateTime  @default(dbgenerated("'2024-01-12 02:46:05.702993'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at   DateTime  @default(dbgenerated("'2024-01-12 02:46:05.702993'::timestamp without time zone")) @db.Timestamp(6)
+  company      company   @relation(fields: [company_fk], references: [company_id], onDelete: NoAction, onUpdate: NoAction)
+  treatment    treatment @relation(fields: [treatment_fk], references: [treatment_id], onDelete: NoAction, onUpdate: NoAction)
+  user         user      @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "company_has_treatment_user_fkey")
+
+  @@id([company_fk, treatment_fk])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model order {
+  order_id                Int                      @id @default(autoincrement())
+  order_fk                Int?
+  client_fk               Int
+  user_fk                 Int
+  patient_fk              Int
+  treatment_fk            Int
+  professional_fk         Int?
+  start_date              DateTime                 @db.Timestamp(6)
+  finish_date             DateTime                 @db.Timestamp(6)
+  has_medical_order       Boolean                  @default(false)
+  frequency               Int                      @db.SmallInt
+  total_sessions          Int                      @db.SmallInt
+  sessions                Int                      @db.SmallInt
+  coinsurance             Decimal                  @default(0) @db.Decimal(7, 2)
+  value                   Decimal                  @db.Decimal(7, 2)
+  cost                    Decimal                  @db.Decimal(7, 2)
+  diagnosis               String?
+  requirements            String?                  @db.VarChar(300)
+  is_active               Boolean                  @default(true)
+  created_at              DateTime                 @default(dbgenerated("'2024-01-12 02:46:05.798726'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at              DateTime                 @default(dbgenerated("'2024-01-12 02:46:05.798726'::timestamp without time zone")) @db.Timestamp(6)
+  claim                   claim[]
+  order                   order?                   @relation("orderToorder", fields: [order_fk], references: [order_id], onDelete: NoAction, onUpdate: NoAction)
+  other_order             order[]                  @relation("orderToorder")
+  patient                 patient                  @relation(fields: [patient_fk], references: [patient_id], onDelete: NoAction, onUpdate: NoAction)
+  client_has_professional client_has_professional? @relation(fields: [client_fk, professional_fk], references: [client_fk, professional_fk], onDelete: NoAction, onUpdate: NoAction, map: "order_professional_fkey")
+  treatment               treatment                @relation(fields: [treatment_fk], references: [treatment_id], onDelete: NoAction, onUpdate: NoAction)
+  user                    user                     @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "order_user_fkey")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model patient {
+  patient_id          Int            @id @default(autoincrement())
+  client_fk           Int
+  user_fk             Int
+  company_fk          Int
+  name                String         @db.VarChar(100)
+  healthcare_provider String?        @db.VarChar(100)
+  gender              gender_options
+  age                 Int?           @db.SmallInt
+  phone               String?        @db.VarChar(30)
+  note                String?
+  is_active           Boolean        @default(true)
+  created_at          DateTime       @default(dbgenerated("'2024-01-12 02:46:05.590889'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at          DateTime       @default(dbgenerated("'2024-01-12 02:46:05.590889'::timestamp without time zone")) @db.Timestamp(6)
+  order               order[]
+  company             company        @relation(fields: [company_fk], references: [company_id], onDelete: NoAction, onUpdate: NoAction)
+  user                user           @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "patient_user_fkey")
+}
+
+model permission {
+  user_fk    Int
+  client_fk  Int
+  screen_fk  Int
+  created_at DateTime @default(dbgenerated("'2024-01-12 02:46:05.301001'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at DateTime @default(dbgenerated("'2024-01-12 02:46:05.301001'::timestamp without time zone")) @db.Timestamp(6)
+  screen     screen   @relation(fields: [screen_fk], references: [screen_id], onDelete: NoAction, onUpdate: NoAction)
+  user       user     @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "permission_user_fkey")
+
+  @@id([user_fk, screen_fk])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model professional {
+  professional_id Int               @id @default(autoincrement())
+  name            String            @db.VarChar(100)
+  gender          gender_options
+  cuit            String?           @db.VarChar(20)
+  fiscal_status   fiscal_status?
+  phone           String?           @db.VarChar(30)
+  email           String?           @db.VarChar(255)
+  password        String            @db.VarChar(255)
+  birthdate       DateTime?         @db.Date
+  bank            String?           @db.VarChar(255)
+  bank_account    String?           @db.VarChar(50)
+  cbu             String?           @db.VarChar(23)
+  alias           String?           @db.VarChar(50)
+  note            String?
+  created_at      DateTime          @default(dbgenerated("'2024-01-12 02:46:05.339623'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at      DateTime          @default(dbgenerated("'2024-01-12 02:46:05.339623'::timestamp without time zone")) @db.Timestamp(6)
+  work_invitation work_invitation[]
+}
+
+model screen {
+  screen_id  Int          @id @default(autoincrement())
+  name       String       @db.VarChar(100)
+  is_active  Boolean      @default(true)
+  created_at DateTime     @default(dbgenerated("'2024-01-12 02:46:05.248128'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at DateTime     @default(dbgenerated("'2024-01-12 02:46:05.248128'::timestamp without time zone")) @db.Timestamp(6)
+  permission permission[]
+}
+
+model treatment {
+  treatment_id               Int                          @id @default(autoincrement())
+  client_fk                  Int
+  user_fk                    Int
+  name                       String                       @db.VarChar(100)
+  abbreviation               String                       @db.VarChar(10)
+  description                String?
+  is_active                  Boolean                      @default(true)
+  created_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.64974'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.64974'::timestamp without time zone")) @db.Timestamp(6)
+  company_has_treatment      company_has_treatment[]
+  order                      order[]
+  user                       user                         @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "treatment_user_fkey")
+  treatment_has_professional treatment_has_professional[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model treatment_has_professional {
+  client_fk               Int
+  user_fk                 Int
+  company_fk              Int
+  treatment_fk            Int
+  professional_fk         Int
+  value                   Decimal                 @db.Decimal(7, 2)
+  created_at              DateTime                @default(dbgenerated("'2024-01-12 02:46:05.741265'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at              DateTime                @default(dbgenerated("'2024-01-12 02:46:05.741265'::timestamp without time zone")) @db.Timestamp(6)
+  company                 company                 @relation(fields: [company_fk], references: [company_id], onDelete: NoAction, onUpdate: NoAction)
+  client_has_professional client_has_professional @relation(fields: [client_fk, professional_fk], references: [client_fk, professional_fk], onDelete: NoAction, onUpdate: NoAction, map: "treatment_has_professional_professional_fkey")
+  treatment               treatment               @relation(fields: [treatment_fk], references: [treatment_id], onDelete: NoAction, onUpdate: NoAction)
+  user                    user                    @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "treatment_user_fkey")
+
+  @@id([company_fk, treatment_fk, professional_fk])
+}
+
+model user {
+  user_id                    Int                          @default(autoincrement())
+  client_fk                  Int
+  name                       String                       @db.VarChar(100)
+  email                      String                       @unique @db.VarChar(255)
+  password                   String                       @db.VarChar(255)
+  is_admin                   Boolean                      @default(false)
+  is_active                  Boolean                      @default(true)
+  created_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.168308'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.168308'::timestamp without time zone")) @db.Timestamp(6)
+  claim                      claim[]
+  company                    company[]
+  company_has_treatment      company_has_treatment[]
+  order                      order[]
+  patient                    patient[]
+  permission                 permission[]
+  treatment                  treatment[]
+  treatment_has_professional treatment_has_professional[]
+  client                     client                       @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([client_fk, user_id])
+}
+
+model work_invitation {
+  client_fk               Int
+  professional_fk         Int
+  sender                  profile_options
+  is_accept               Boolean                  @default(false)
+  created_at              DateTime                 @default(dbgenerated("'2024-01-12 02:46:05.460318'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at              DateTime                 @default(dbgenerated("'2024-01-12 02:46:05.460318'::timestamp without time zone")) @db.Timestamp(6)
+  client_has_professional client_has_professional?
+  client                  client                   @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
+  professional            professional             @relation(fields: [professional_fk], references: [professional_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([client_fk, professional_fk])
+}
+
+enum fiscal_status {
+  monotributista
+  responsable_inscripto
+}
+
+enum gender_options {
+  M
+  F
+  m
+  f
+}
+
+enum profile_options {
+  coordinador
+  profesional
+}
+
+enum urgency_options {
+  baja
+  media
+  alta
+}
