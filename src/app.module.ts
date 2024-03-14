@@ -4,7 +4,8 @@ import {
     ProfessionalModule,
     ClientModule,
     AuthModule,
-    UserModule
+    UserModule,
+    ScreenModule
 } from './modules';
 
 @Module({
@@ -14,6 +15,7 @@ import {
         ClientModule,
         AuthModule,
         UserModule,
+        ScreenModule,
     ],
     controllers: [],
     providers: [],
