@@ -17,28 +17,35 @@ model claim {
   urgency       urgency_options
   reported_date DateTime        @db.Timestamp(6)
   is_active     Boolean         @default(true)
-  created_at    DateTime        @default(dbgenerated("'2024-01-12 02:46:05.933902'::timestamp without time zone")) @db.Timestamp(6)
-  updated_at    DateTime        @default(dbgenerated("'2024-01-12 02:46:05.933902'::timestamp without time zone")) @db.Timestamp(6)
+  created_at    DateTime        @default(dbgenerated("'2024-03-13 21:10:42.336164'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at    DateTime        @default(dbgenerated("'2024-03-13 21:10:42.336164'::timestamp without time zone")) @db.Timestamp(6)
+  client        client          @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
   order         order           @relation(fields: [order_fk], references: [order_id], onDelete: NoAction, onUpdate: NoAction)
-  user          user            @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "claim_user_fkey")
+  user          user            @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model client {
-  client_id       Int               @id @default(autoincrement())
-  name            String            @db.VarChar(100)
-  is_active       Boolean           @default(true)
-  created_at      DateTime          @default(dbgenerated("'2024-01-12 02:46:05.105098'::timestamp without time zone")) @db.Timestamp(6)
-  updated_at      DateTime          @default(dbgenerated("'2024-01-12 02:46:05.105098'::timestamp without time zone")) @db.Timestamp(6)
-  user            user[]
-  work_invitation work_invitation[]
+  client_id             Int                     @id @default(autoincrement())
+  name                  String                  @db.VarChar(100)
+  is_active             Boolean                 @default(true)
+  created_at            DateTime                @default(dbgenerated("'2024-03-13 21:10:41.569035'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at            DateTime                @default(dbgenerated("'2024-03-13 21:10:41.569035'::timestamp without time zone")) @db.Timestamp(6)
+  claim                 claim[]
+  company               company[]
+  company_has_treatment company_has_treatment[]
+  patient               patient[]
+  permission            permission[]
+  treatment             treatment[]
+  user                  user[]
+  work_invitation       work_invitation[]
 }
 
 model client_has_professional {
   client_fk                  Int
   professional_fk            Int
   is_active                  Boolean                      @default(true)
-  created_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.495541'::timestamp without time zone")) @db.Timestamp(6)
-  updated_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.495541'::timestamp without time zone")) @db.Timestamp(6)
+  created_at                 DateTime                     @default(dbgenerated("'2024-03-13 21:10:41.951743'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at                 DateTime                     @default(dbgenerated("'2024-03-13 21:10:41.951743'::timestamp without time zone")) @db.Timestamp(6)
   work_invitation            work_invitation              @relation(fields: [client_fk, professional_fk], references: [client_fk, professional_fk], onDelete: NoAction, onUpdate: NoAction, map: "client_has_professional_fkey")
   order                      order[]
   treatment_has_professional treatment_has_professional[]
@@ -54,9 +61,10 @@ model company {
   cuit                       String?                      @db.VarChar(20)
   note                       String?
   is_active                  Boolean                      @default(true)
-  created_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.535216'::timestamp without time zone")) @db.Timestamp(6)
-  updated_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.535216'::timestamp without time zone")) @db.Timestamp(6)
-  user                       user                         @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "company_user_fkey")
+  created_at                 DateTime                     @default(dbgenerated("'2024-03-13 21:10:41.985286'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at                 DateTime                     @default(dbgenerated("'2024-03-13 21:10:41.985286'::timestamp without time zone")) @db.Timestamp(6)
+  client                     client                       @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
+  user                       user                         @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   company_has_treatment      company_has_treatment[]
   patient                    patient[]
   treatment_has_professional treatment_has_professional[]
@@ -69,11 +77,12 @@ model company_has_treatment {
   company_fk   Int
   treatment_fk Int
   value        Decimal   @db.Decimal(7, 2)
-  created_at   DateTime  @default(dbgenerated("'2024-01-12 02:46:05.702993'::timestamp without time zone")) @db.Timestamp(6)
-  updated_at   DateTime  @default(dbgenerated("'2024-01-12 02:46:05.702993'::timestamp without time zone")) @db.Timestamp(6)
+  created_at   DateTime  @default(dbgenerated("'2024-03-13 21:10:42.186796'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at   DateTime  @default(dbgenerated("'2024-03-13 21:10:42.186796'::timestamp without time zone")) @db.Timestamp(6)
+  client       client    @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
   company      company   @relation(fields: [company_fk], references: [company_id], onDelete: NoAction, onUpdate: NoAction)
   treatment    treatment @relation(fields: [treatment_fk], references: [treatment_id], onDelete: NoAction, onUpdate: NoAction)
-  user         user      @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "company_has_treatment_user_fkey")
+  user         user      @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([company_fk, treatment_fk])
 }
@@ -99,15 +108,15 @@ model order {
   diagnosis               String?
   requirements            String?                  @db.VarChar(300)
   is_active               Boolean                  @default(true)
-  created_at              DateTime                 @default(dbgenerated("'2024-01-12 02:46:05.798726'::timestamp without time zone")) @db.Timestamp(6)
-  updated_at              DateTime                 @default(dbgenerated("'2024-01-12 02:46:05.798726'::timestamp without time zone")) @db.Timestamp(6)
+  created_at              DateTime                 @default(dbgenerated("'2024-03-13 21:10:42.264389'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at              DateTime                 @default(dbgenerated("'2024-03-13 21:10:42.264389'::timestamp without time zone")) @db.Timestamp(6)
   claim                   claim[]
   order                   order?                   @relation("orderToorder", fields: [order_fk], references: [order_id], onDelete: NoAction, onUpdate: NoAction)
   other_order             order[]                  @relation("orderToorder")
   patient                 patient                  @relation(fields: [patient_fk], references: [patient_id], onDelete: NoAction, onUpdate: NoAction)
   client_has_professional client_has_professional? @relation(fields: [client_fk, professional_fk], references: [client_fk, professional_fk], onDelete: NoAction, onUpdate: NoAction, map: "order_professional_fkey")
   treatment               treatment                @relation(fields: [treatment_fk], references: [treatment_id], onDelete: NoAction, onUpdate: NoAction)
-  user                    user                     @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "order_user_fkey")
+  user                    user                     @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -123,21 +132,23 @@ model patient {
   phone               String?        @db.VarChar(30)
   note                String?
   is_active           Boolean        @default(true)
-  created_at          DateTime       @default(dbgenerated("'2024-01-12 02:46:05.590889'::timestamp without time zone")) @db.Timestamp(6)
-  updated_at          DateTime       @default(dbgenerated("'2024-01-12 02:46:05.590889'::timestamp without time zone")) @db.Timestamp(6)
+  created_at          DateTime       @default(dbgenerated("'2024-03-13 21:10:42.05922'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at          DateTime       @default(dbgenerated("'2024-03-13 21:10:42.05922'::timestamp without time zone")) @db.Timestamp(6)
   order               order[]
+  client              client         @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
   company             company        @relation(fields: [company_fk], references: [company_id], onDelete: NoAction, onUpdate: NoAction)
-  user                user           @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "patient_user_fkey")
+  user                user           @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model permission {
   user_fk    Int
   client_fk  Int
   screen_fk  Int
-  created_at DateTime @default(dbgenerated("'2024-01-12 02:46:05.301001'::timestamp without time zone")) @db.Timestamp(6)
-  updated_at DateTime @default(dbgenerated("'2024-01-12 02:46:05.301001'::timestamp without time zone")) @db.Timestamp(6)
+  created_at DateTime @default(dbgenerated("'2024-03-13 21:10:41.738738'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at DateTime @default(dbgenerated("'2024-03-13 21:10:41.738738'::timestamp without time zone")) @db.Timestamp(6)
+  client     client   @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
   screen     screen   @relation(fields: [screen_fk], references: [screen_id], onDelete: NoAction, onUpdate: NoAction)
-  user       user     @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "permission_user_fkey")
+  user       user     @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([user_fk, screen_fk])
 }
@@ -147,6 +158,7 @@ model permission {
 model professional {
   professional_id Int               @id @default(autoincrement())
   name            String            @db.VarChar(100)
+  last_name       String            @db.VarChar(100)
   gender          gender_options
   cuit            String?           @db.VarChar(20)
   fiscal_status   fiscal_status?
@@ -159,8 +171,8 @@ model professional {
   cbu             String?           @db.VarChar(23)
   alias           String?           @db.VarChar(50)
   note            String?
-  created_at      DateTime          @default(dbgenerated("'2024-01-12 02:46:05.339623'::timestamp without time zone")) @db.Timestamp(6)
-  updated_at      DateTime          @default(dbgenerated("'2024-01-12 02:46:05.339623'::timestamp without time zone")) @db.Timestamp(6)
+  created_at      DateTime          @default(dbgenerated("'2024-03-13 21:10:41.776402'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at      DateTime          @default(dbgenerated("'2024-03-13 21:10:41.776402'::timestamp without time zone")) @db.Timestamp(6)
   work_invitation work_invitation[]
 }
 
@@ -168,8 +180,8 @@ model screen {
   screen_id  Int          @id @default(autoincrement())
   name       String       @db.VarChar(100)
   is_active  Boolean      @default(true)
-  created_at DateTime     @default(dbgenerated("'2024-01-12 02:46:05.248128'::timestamp without time zone")) @db.Timestamp(6)
-  updated_at DateTime     @default(dbgenerated("'2024-01-12 02:46:05.248128'::timestamp without time zone")) @db.Timestamp(6)
+  created_at DateTime     @default(dbgenerated("'2024-03-13 21:10:41.6986'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at DateTime     @default(dbgenerated("'2024-03-13 21:10:41.6986'::timestamp without time zone")) @db.Timestamp(6)
   permission permission[]
 }
 
@@ -181,11 +193,12 @@ model treatment {
   abbreviation               String                       @db.VarChar(10)
   description                String?
   is_active                  Boolean                      @default(true)
-  created_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.64974'::timestamp without time zone")) @db.Timestamp(6)
-  updated_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.64974'::timestamp without time zone")) @db.Timestamp(6)
+  created_at                 DateTime                     @default(dbgenerated("'2024-03-13 21:10:42.124026'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at                 DateTime                     @default(dbgenerated("'2024-03-13 21:10:42.124026'::timestamp without time zone")) @db.Timestamp(6)
   company_has_treatment      company_has_treatment[]
   order                      order[]
-  user                       user                         @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "treatment_user_fkey")
+  client                     client                       @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
+  user                       user                         @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   treatment_has_professional treatment_has_professional[]
 }
 
@@ -197,26 +210,26 @@ model treatment_has_professional {
   treatment_fk            Int
   professional_fk         Int
   value                   Decimal                 @db.Decimal(7, 2)
-  created_at              DateTime                @default(dbgenerated("'2024-01-12 02:46:05.741265'::timestamp without time zone")) @db.Timestamp(6)
-  updated_at              DateTime                @default(dbgenerated("'2024-01-12 02:46:05.741265'::timestamp without time zone")) @db.Timestamp(6)
+  created_at              DateTime                @default(dbgenerated("'2024-03-13 21:10:42.226186'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at              DateTime                @default(dbgenerated("'2024-03-13 21:10:42.226186'::timestamp without time zone")) @db.Timestamp(6)
   company                 company                 @relation(fields: [company_fk], references: [company_id], onDelete: NoAction, onUpdate: NoAction)
   client_has_professional client_has_professional @relation(fields: [client_fk, professional_fk], references: [client_fk, professional_fk], onDelete: NoAction, onUpdate: NoAction, map: "treatment_has_professional_professional_fkey")
   treatment               treatment               @relation(fields: [treatment_fk], references: [treatment_id], onDelete: NoAction, onUpdate: NoAction)
-  user                    user                    @relation(fields: [client_fk, user_fk], references: [client_fk, user_id], onDelete: NoAction, onUpdate: NoAction, map: "treatment_user_fkey")
+  user                    user                    @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([company_fk, treatment_fk, professional_fk])
 }
 
 model user {
-  user_id                    Int                          @default(autoincrement())
+  user_id                    Int                          @id @default(autoincrement())
   client_fk                  Int
   name                       String                       @db.VarChar(100)
   email                      String                       @unique @db.VarChar(255)
   password                   String                       @db.VarChar(255)
   is_admin                   Boolean                      @default(false)
   is_active                  Boolean                      @default(true)
-  created_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.168308'::timestamp without time zone")) @db.Timestamp(6)
-  updated_at                 DateTime                     @default(dbgenerated("'2024-01-12 02:46:05.168308'::timestamp without time zone")) @db.Timestamp(6)
+  created_at                 DateTime                     @default(dbgenerated("'2024-03-13 21:10:41.619407'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at                 DateTime                     @default(dbgenerated("'2024-03-13 21:10:41.619407'::timestamp without time zone")) @db.Timestamp(6)
   claim                      claim[]
   company                    company[]
   company_has_treatment      company_has_treatment[]
@@ -226,8 +239,6 @@ model user {
   treatment                  treatment[]
   treatment_has_professional treatment_has_professional[]
   client                     client                       @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([client_fk, user_id])
 }
 
 model work_invitation {
@@ -235,8 +246,8 @@ model work_invitation {
   professional_fk         Int
   sender                  profile_options
   is_accept               Boolean                  @default(false)
-  created_at              DateTime                 @default(dbgenerated("'2024-01-12 02:46:05.460318'::timestamp without time zone")) @db.Timestamp(6)
-  updated_at              DateTime                 @default(dbgenerated("'2024-01-12 02:46:05.460318'::timestamp without time zone")) @db.Timestamp(6)
+  created_at              DateTime                 @default(dbgenerated("'2024-03-13 21:10:41.900727'::timestamp without time zone")) @db.Timestamp(6)
+  updated_at              DateTime                 @default(dbgenerated("'2024-03-13 21:10:41.900727'::timestamp without time zone")) @db.Timestamp(6)
   client_has_professional client_has_professional?
   client                  client                   @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
   professional            professional             @relation(fields: [professional_fk], references: [professional_id], onDelete: NoAction, onUpdate: NoAction)
@@ -250,10 +261,10 @@ enum fiscal_status {
 }
 
 enum gender_options {
-  M
-  F
   m
   f
+  M
+  F
 }
 
 enum profile_options {
