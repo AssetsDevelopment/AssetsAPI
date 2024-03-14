@@ -19,7 +19,7 @@ export class ProfessionalController {
     }
 
     /**
-     * Obtiene todos los profesionales
+     * Listar todos los profesionales
      */
     @Get()
     findAll(@Query() paginationDto: PaginationDto) {
@@ -27,7 +27,7 @@ export class ProfessionalController {
     }
 
     /**
-     * Obtiene un profesional por su id
+     * Obtiene un profesional por id
      */
     @Get(':id')
     findOne(@Param('id', ParseIntPipe, ParamIdPipeTsPipe) id: number) {
@@ -35,7 +35,7 @@ export class ProfessionalController {
     }
 
     /**
-     * Actualiza un profesional por su id
+     * Actualiza un profesional por id
      */
     @Patch(':id')
     update(

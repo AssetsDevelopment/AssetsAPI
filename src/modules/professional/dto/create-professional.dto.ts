@@ -6,12 +6,21 @@ export class CreateProfessionalDto {
 
     /**
      * Nombre del profesional
-     * @example 'Juan Pérez'
+     * @example 'Juan'
      */
     @Matches("^[A-Za-zÁáÉéÍíÓóÚúÜüÑñ]+")
     @MinLength(2)
     @MaxLength(100)
     name: string;
+    
+    /**
+     * Apellido del profesional
+     * @example 'Pérez'
+     */
+    @Matches("^[A-Za-zÁáÉéÍíÓóÚúÜüÑñ]+")
+    @MinLength(2)
+    @MaxLength(100)
+    last_name: string;
     
     /**
      * Genero

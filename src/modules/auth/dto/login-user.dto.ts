@@ -4,7 +4,7 @@ export class LoginUserDto {
 
     /**
      * Email
-     * @example 'juan@gmail.com'
+     * @example 'user1@gmail.com'
      */
     // TODO: Validar con regex
     @MinLength(12)
@@ -13,7 +13,7 @@ export class LoginUserDto {
     
     /**
      * Contraseña
-     * @example 'JuanPerez123@'
+     * @example 'pppppppp'
      */
     // TODO: Validar con regex
     @MaxLength(255)
