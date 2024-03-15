@@ -8,20 +8,22 @@ import {
     ScreenModule,
     PermissionModule,
     WorkInvitationModule,
-    ClientHasProfessionalModule
+    ClientHasProfessionalModule,
+    CompanyModule,
 } from './modules';
 
 @Module({
     imports: [
         ConfigModule.forRoot(),
-        ProfessionalModule,
-        ClientModule,
         AuthModule,
-        UserModule,
-        ScreenModule,
-        PermissionModule,
-        WorkInvitationModule,
+        ClientModule,
         ClientHasProfessionalModule,
+        CompanyModule,
+        PermissionModule,
+        ProfessionalModule,
+        ScreenModule,
+        UserModule,
+        WorkInvitationModule,
     ],
     controllers: [],
     providers: [],
