@@ -2,13 +2,17 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreatePermissionDto, UpdatePermissionDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { UserService } from '../user/user.service';
+import { ClientService } from '../client/client.service';
+import { ScreenService } from '../screen/screen.service';
 
 @Injectable()
 export class PermissionService {
     private readonly logger = new Logger('PermissionService')
 
     constructor(
-        private readonly prisma: PrismaService
+        private readonly prisma: PrismaService,
+        private readonly screenService: ScreenService,
     ) {}
 
     async create(createPermissionDto: CreatePermissionDto) {
@@ -79,6 +83,9 @@ export class PermissionService {
     async update(screen_id: number, user_id: number, updatePermissionDto: UpdatePermissionDto) {
         
         await this.findOne(screen_id, user_id);
+
+        if (updatePermissionDto.screen_fk)
+            await this.screenService.findOne(updatePermissionDto.screen_fk);
 
         try {
             const updatedPermission = await this.prisma.permission.update({

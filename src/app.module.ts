@@ -6,7 +6,8 @@ import {
     AuthModule,
     UserModule,
     ScreenModule,
-    PermissionModule
+    PermissionModule,
+    WorkInvitationModule
 } from './modules';
 
 @Module({
@@ -18,6 +19,7 @@ import {
         UserModule,
         ScreenModule,
         PermissionModule,
+        WorkInvitationModule,
     ],
     controllers: [],
     providers: [],
