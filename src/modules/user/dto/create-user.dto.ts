@@ -8,7 +8,6 @@ export class CreateUserDto {
      */
     @IsNumber()
     @IsPositive()
-    @IsOptional()
     @Max(2147483647)
     client_fk: number
 
@@ -26,7 +25,6 @@ export class CreateUserDto {
      * @example 'juan@gmail.com'
      */
     // TODO: Validar con regex
-    @IsOptional()
     @MinLength(12)
     @MaxLength(255)
     email: string

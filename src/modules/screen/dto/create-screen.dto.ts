@@ -17,5 +17,5 @@ export class CreateScreenDto {
      */
     @IsBoolean()
     @IsOptional()
-    is_active: boolean;
+    is_active?: boolean;
 }

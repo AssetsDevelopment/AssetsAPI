@@ -19,25 +19,25 @@ export class PermissionController {
     }
 
     /**
-     * Listar todos los permisos por cliente
+     * Listar todos los permisos de un cliente
      */
     @Get('client/:id')
-    findAllPerClient(
+    findAllByClient(
         @Param('id', ParseIntPipe, ParamIdPipeTsPipe) client_id: number,
         @Query() paginationDto: PaginationDto
     ) {
-        return this.permissionService.findAllPerClient(paginationDto, client_id);
+        return this.permissionService.findAllByClient(paginationDto, client_id);
     }
  
     /**
-     * Listar todos los permisos por usuario
+     * Listar todos los permisos de un usuario
      */
     @Get('user/:id')
-    findAllPerUser(
+    findAllByUser(
         @Param('id', ParseIntPipe, ParamIdPipeTsPipe) user_id: number,
         @Query() paginationDto: PaginationDto
     ) {
-        return this.permissionService.findAllPerUser(paginationDto, user_id);
+        return this.permissionService.findAllByUser(paginationDto, user_id);
     }
 
     /**

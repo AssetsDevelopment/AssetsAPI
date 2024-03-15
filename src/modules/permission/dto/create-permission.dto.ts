@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsPositive, Max } from "class-validator"
+import { IsNumber, IsPositive, Max } from "class-validator"
 
 export class CreatePermissionDto {
 
@@ -8,7 +8,6 @@ export class CreatePermissionDto {
      */
     @IsNumber()
     @IsPositive()
-    @IsOptional()
     @Max(2147483647)
     user_fk: number
 
@@ -18,7 +17,6 @@ export class CreatePermissionDto {
      */
     @IsNumber()
     @IsPositive()
-    @IsOptional()
     @Max(2147483647)
     client_fk: number
 
@@ -28,7 +26,6 @@ export class CreatePermissionDto {
      */
     @IsNumber()
     @IsPositive()
-    @IsOptional()
     @Max(2147483647)
     screen_fk: number
 }

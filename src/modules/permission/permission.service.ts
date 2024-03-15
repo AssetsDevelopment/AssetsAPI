@@ -2,8 +2,6 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreatePermissionDto, UpdatePermissionDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { UserService } from '../user/user.service';
-import { ClientService } from '../client/client.service';
 import { ScreenService } from '../screen/screen.service';
 
 @Injectable()
@@ -24,7 +22,7 @@ export class PermissionService {
         } 
     }
 
-    async findAllPerClient(paginationDto: PaginationDto, client_id: number) {
+    async findAllByClient(paginationDto: PaginationDto, client_id: number) {
         const {limit = 10, offset = 0} = paginationDto;
 
         try {
@@ -41,7 +39,7 @@ export class PermissionService {
         }
     }
 
-    async findAllPerUser(paginationDto: PaginationDto, user_id: number) {
+    async findAllByUser(paginationDto: PaginationDto, user_id: number) {
         const {limit = 10, offset = 0} = paginationDto;
 
         try {

@@ -7,7 +7,8 @@ import {
     UserModule,
     ScreenModule,
     PermissionModule,
-    WorkInvitationModule
+    WorkInvitationModule,
+    ClientHasProfessionalModule
 } from './modules';
 
 @Module({
@@ -20,6 +21,7 @@ import {
         ScreenModule,
         PermissionModule,
         WorkInvitationModule,
+        ClientHasProfessionalModule,
     ],
     controllers: [],
     providers: [],
