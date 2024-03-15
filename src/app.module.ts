@@ -5,7 +5,8 @@ import {
     ClientModule,
     AuthModule,
     UserModule,
-    ScreenModule
+    ScreenModule,
+    PermissionModule
 } from './modules';
 
 @Module({
@@ -16,6 +17,7 @@ import {
         AuthModule,
         UserModule,
         ScreenModule,
+        PermissionModule,
     ],
     controllers: [],
     providers: [],
