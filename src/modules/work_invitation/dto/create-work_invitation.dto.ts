@@ -1,5 +1,6 @@
-import { profile_options } from "@prisma/client";
-import { IsBoolean, IsNumber, IsOptional, IsPositive, Max } from "class-validator";
+// import { profile_options } from "@prisma/client";
+import { IsBoolean, IsNumber, IsOptional, IsPositive, IsString, Max } from "class-validator";
+import { profile_options } from "src/modules/common/enum";
 
 export class CreateWorkInvitationDto {
 
@@ -23,7 +24,9 @@ export class CreateWorkInvitationDto {
 
     /**
      * Rol del usuario
+     * @example "coordinador"
      */
+    @IsString()
     sender: profile_options
 
     /**

@@ -10,6 +10,7 @@ import {
     WorkInvitationModule,
     ClientHasProfessionalModule,
     CompanyModule,
+    PatientModule
 } from './modules';
 
 @Module({
@@ -19,6 +20,7 @@ import {
         ClientModule,
         ClientHasProfessionalModule,
         CompanyModule,
+        // PatientModule,
         PermissionModule,
         ProfessionalModule,
         ScreenModule,

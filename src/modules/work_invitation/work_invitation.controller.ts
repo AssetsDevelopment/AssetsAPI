@@ -10,7 +10,7 @@ export class WorkInvitationController {
     constructor(private readonly workInvitationService: WorkInvitationService) {}
 
     /**
-     * Crea una invitación
+     * Crea una invitaciónn
      */
     @Post()
     create(@Body() createWorkInvitationDto: CreateWorkInvitationDto) {

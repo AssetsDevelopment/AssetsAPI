@@ -16,10 +16,12 @@ export class WorkInvitationService {
 
     async create(createWorkInvitationDto: CreateWorkInvitationDto) {
 
-        delete createWorkInvitationDto.sender;
+        delete createWorkInvitationDto.is_accept;
         
         try {
-            const work_invitation = await this.prisma.work_invitation.create({data: createWorkInvitationDto}); 
+            const work_invitation = await this.prisma.work_invitation.create({
+                data: createWorkInvitationDto
+            }); 
             return work_invitation;
         } catch (error) {
             this.prisma.handleDBExeption(error, this.logger);
