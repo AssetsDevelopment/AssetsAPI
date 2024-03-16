@@ -73,5 +73,4 @@ export class UserService {
             this.prisma.handleDBExeption(error, this.logger);
         }
     }
-
 }

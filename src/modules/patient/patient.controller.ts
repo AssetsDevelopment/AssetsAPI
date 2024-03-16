@@ -3,7 +3,9 @@ import { PatientService } from './patient.service';
 import { CreatePatientDto, UpdatePatientDto } from './dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { ParamIdPipeTsPipe } from '../common/pipes/param-id.pipe.ts.pipe';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Patient')
 @Controller('patient')
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
