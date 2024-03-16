@@ -10,4 +10,5 @@ export { CompanyModule } from './company/company.module';
 export { PatientModule } from './patient/patient.module';
 export { TreatmentModule } from './treatment/treatment.module';
 export { CompanyHasTreatmentModule } from './company_has_treatment/company_has_treatment.module';
+export { TreatmentHasProfessionalModule } from './treatment_has_professional/treatment_has_professional.module';
 
