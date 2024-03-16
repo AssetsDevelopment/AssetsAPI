@@ -11,7 +11,8 @@ import {
     ClientHasProfessionalModule,
     CompanyModule,
     PatientModule,
-    TreatmentModule
+    TreatmentModule,
+    CompanyHasTreatmentModule
 } from './modules';
 
 @Module({
@@ -20,6 +21,7 @@ import {
         AuthModule,
         ClientModule,
         ClientHasProfessionalModule,
+        CompanyHasTreatmentModule,
         CompanyModule,
         PatientModule,
         PermissionModule,

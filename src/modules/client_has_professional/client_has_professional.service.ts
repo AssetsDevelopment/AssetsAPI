@@ -10,7 +10,6 @@ export class ClientHasProfessionalService {
 
     constructor(
         private readonly prisma: PrismaService,
-        // private readonly screenService: ScreenService,
     ) {}
 
     async findAllByClient(paginationDto: PaginationDto, client_id: number) {
@@ -77,19 +76,18 @@ export class ClientHasProfessionalService {
         await this.findOne(client_id, professional_id);
 
         try {
-            const updatedPermission = await this.prisma.client_has_professional.update({
+            const updatedClientHasProfessional = await this.prisma.client_has_professional.update({
                 where: {
                     client_fk_professional_fk: {
                         client_fk: client_id,
                         professional_fk: professional_id
-                    
                     }
                 },
                 data: {
                     is_active: is_active
                 }
             });
-            return updatedPermission;
+            return updatedClientHasProfessional;
         } catch (error) {
             this.prisma.handleDBExeption(error, this.logger);
         }

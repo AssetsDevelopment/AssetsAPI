@@ -9,4 +9,5 @@ export { ClientHasProfessionalModule } from './client_has_professional/client_ha
 export { CompanyModule } from './company/company.module';
 export { PatientModule } from './patient/patient.module';
 export { TreatmentModule } from './treatment/treatment.module';
+export { CompanyHasTreatmentModule } from './company_has_treatment/company_has_treatment.module';
 
