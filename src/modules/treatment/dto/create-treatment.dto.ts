@@ -41,8 +41,9 @@ export class CreateTreatmentDto {
      * Descripción de la prestación
      * @example 'Juan'
      */
+    @IsOptional()
     @IsString()
-    description: string;
+    description?: string;
 
     /**
      * Estado del prestacion
@@ -50,5 +51,5 @@ export class CreateTreatmentDto {
      */
     @IsOptional()
     @IsBoolean()
-    is_active: boolean;
+    is_active?: boolean;
 }

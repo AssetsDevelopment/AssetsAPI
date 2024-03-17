@@ -121,6 +121,7 @@ export class CreateProfessionalDto {
      * @example 'Profesional con 10 años de experiencia'
      */
     @IsOptional()
+    @IsString()
     note?: string
 }
 

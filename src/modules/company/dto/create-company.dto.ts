@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsOptional, IsPositive, Matches, Max, MaxLength, MinLength } from "class-validator";
+import { IsBoolean, IsNumber, IsOptional, IsPositive, IsString, Matches, Max, MaxLength, MinLength } from "class-validator";
 
 export class CreateCompanyDto {
 
@@ -42,6 +42,7 @@ export class CreateCompanyDto {
      * @example 'Nota de la empresa'
      */
     @IsOptional()
+    @IsString()
     note?: string;
 
     /**

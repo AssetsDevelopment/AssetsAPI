@@ -44,7 +44,7 @@ export class CreateCompanyHasTreatmentDto {
      */
     @IsDecimal()
     @IsPositive()
-    @Max(9999999.99)
+    @Max(99999.99)
     value: number;
 
 }
