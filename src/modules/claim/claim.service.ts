@@ -1,20 +1,22 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { CreateOrderDto, UpdateOrderDto } from './dto';
+import { CreateClaimDto, UpdateClaimDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { OrderService } from '../order/order.service';
 
 @Injectable()
-export class OrderService {
-    private readonly logger = new Logger('OrderService')
+export class ClaimService {
+    private readonly logger = new Logger('ClaimService')
 
     constructor(
         private readonly prisma: PrismaService,
+        private readonly orderService: OrderService,
     ) {}
 
-    async create(createOrderDto: CreateOrderDto) {
+    async create(createClaimDto: CreateClaimDto) {
         try {
-            const order = await this.prisma.order.create({data: createOrderDto}); 
-            return order;
+            const claim = await this.prisma.claim.create({data: createClaimDto}); 
+            return claim;
         } catch (error) {
             this.prisma.handleDBExeption(error, this.logger);
         }
@@ -24,11 +26,11 @@ export class OrderService {
         const {limit, offset} = paginationDto;
 
         try {
-            const orders = await this.prisma.order.findMany({
+            const claims = await this.prisma.claim.findMany({
                 take: limit,
                 skip: offset,
             });
-            return orders;
+            return claims;
         } catch (error) {
             this.prisma.handleDBExeption(error, this.logger);            
         }
@@ -37,32 +39,35 @@ export class OrderService {
     async findOne(id: number) {
 
         try {
-            const order = await this.prisma.order.findUnique({
+            const claim = await this.prisma.claim.findUnique({
                 where: {
-                    order_id: id
+                    claim_id: id
                 }
             });
             
-            if (!order) 
-                throw new NotFoundException(`The order with ID ${id} does not exist`);
+            if (!claim) 
+                throw new NotFoundException(`The claim with ID ${id} does not exist`);
 
-            return order;
+            return claim;
 
         } catch (error) {
             this.prisma.handleDBExeption(error, this.logger);   
         }
     }
 
-    async update(id: number, updateOrderDto: UpdateOrderDto) {
+    async update(id: number, updateClaimDto: UpdateClaimDto) {
         
         await this.findOne(id);
 
+        if (updateClaimDto.order_fk)
+            await this.orderService.findOne(updateClaimDto.order_fk);
+
         try {
-            const updatedOrder = await this.prisma.order.update({
-                where: {order_id: id},
-                data: updateOrderDto
+            const updatedClaim = await this.prisma.claim.update({
+                where: {claim_id: id},
+                data: updateClaimDto
             });
-            return updatedOrder;
+            return updatedClaim;
         } catch (error) {
             this.prisma.handleDBExeption(error, this.logger);
         }

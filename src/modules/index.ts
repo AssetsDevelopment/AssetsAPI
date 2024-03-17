@@ -12,4 +12,5 @@ export { TreatmentModule } from './treatment/treatment.module';
 export { CompanyHasTreatmentModule } from './company_has_treatment/company_has_treatment.module';
 export { TreatmentHasProfessionalModule } from './treatment_has_professional/treatment_has_professional.module';
 export { OrderModule } from './order/order.module';
+export { ClaimModule } from './claim/claim.module';
 

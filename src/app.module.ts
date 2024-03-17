@@ -14,13 +14,15 @@ import {
     TreatmentModule,
     CompanyHasTreatmentModule,
     TreatmentHasProfessionalModule,
-    OrderModule
+    OrderModule,
+    ClaimModule
 } from './modules';
 
 @Module({
     imports: [
         ConfigModule.forRoot(),
         AuthModule,
+        ClaimModule,
         ClientModule,
         ClientHasProfessionalModule,
         CompanyHasTreatmentModule,
