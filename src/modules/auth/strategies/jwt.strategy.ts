@@ -31,8 +31,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
                 user_id: user_id
             }
         })
+        
+        const user_professional = await this.prisma.professional.findUnique({
+            where: {
+                professional_id: user_id
+            }
+        })
 
-        if (!user.is_active) {
+        if (!user.is_active && !user_professional) {
             this.logger.error('User is not active')
             throw new UnauthorizedException('User is not active')
         }

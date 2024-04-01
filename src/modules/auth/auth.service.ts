@@ -50,6 +50,41 @@ export class AuthService {
         return user;
     }
 
+    async loginMobile(loginUserDto: LoginUserDto) {
+        const {email, password} = loginUserDto;
+
+        let user;
+
+        try {
+
+            const [{user_login}]: [{user_login:number}] = await this.prisma.$queryRaw
+            `
+                SELECT user_login_mobile(${email}, ${password})
+            `;
+
+            if (!user_login) throw new UnauthorizedException('Credentials are not valid')
+
+            user = await this.prisma.professional.findUnique({
+                where: {professional_id: user_login},
+                select: {
+                    professional_id: true,
+                    name: true,
+                    last_name: true,
+                    gender: true,
+                }
+            })
+            
+        } catch (error) {
+            if (error.status === 401) return error.response;
+            
+            this.prisma.handleDBExeption(error, this.logger);
+        }
+
+        user.token = this.getJwtToken({user_id: user.user_id});
+
+        return user;
+    }
+
     checkAuthStatus(user: User) {
         
         const responseUser = {

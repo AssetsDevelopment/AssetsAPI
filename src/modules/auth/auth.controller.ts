@@ -12,11 +12,19 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
     /**
-     * Iniciar sesión
+     * Iniciar sesión DASHBOARD
      */
     @Post('login')
     login(@Body() loginUserDto: LoginUserDto) {
         return this.authService.login(loginUserDto);
+    }
+
+    /**
+     * Iniciar sesión MOBILE
+     */
+    @Post('login-mobile')
+    loginMobile(@Body() loginUserDto: LoginUserDto) {
+        return this.authService.loginMobile(loginUserDto);
     }
 
     /**
