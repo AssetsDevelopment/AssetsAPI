@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { LoginUserDto, TokenUserDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { IncomingHttpHeaders } from 'http';
-import { GetUser } from './decorators';
+import { Auth, GetUser } from './decorators';
 import { user as User } from '@prisma/client';
 
 @ApiTags('Auth')
@@ -40,6 +40,7 @@ export class AuthController {
     /**
      * Verificar estado de autenticación
      */
+    @Auth()
     @Get('check-status')
     checkAuthStatus(@GetUser() user: User) {
         return this.authService.checkAuthStatus(user);
