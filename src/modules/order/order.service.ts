@@ -52,6 +52,25 @@ export class OrderService {
             this.prisma.handleDBExeption(error, this.logger);   
         }
     }
+    
+    async findByProfessional(id: number) {
+
+        try {
+            const order = await this.prisma.order.findFirst({
+                where: {
+                    professional_fk: id
+                }
+            });
+            
+            if (!order) 
+                throw new NotFoundException(`The order with professional ID ${id} does not exist`);
+
+            return order;
+
+        } catch (error) {
+            this.prisma.handleDBExeption(error, this.logger);   
+        }
+    }
 
     async update(id: number, updateOrderDto: UpdateOrderDto) {
         

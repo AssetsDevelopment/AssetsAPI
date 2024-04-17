@@ -33,7 +33,7 @@ export class OrderController {
     findOne(@Param('id', ParseIntPipe, ParamIdPipeTsPipe) id: number) {
         return this.orderService.findOne(id);
     }
-
+    
     /**
      * Actualizar un pedido por id
      */
@@ -43,5 +43,13 @@ export class OrderController {
         @Body() updateOrderDto: UpdateOrderDto
     ) {
         return this.orderService.update(id, updateOrderDto);
+    }
+
+    /**
+     * Buscar un pedido por profesional
+     */
+    @Get('professional/:id')
+    findByProfessional(@Param('id', ParseIntPipe, ParamIdPipeTsPipe) id: number) {
+        return this.orderService.findByProfessional(id);
     }
 }
