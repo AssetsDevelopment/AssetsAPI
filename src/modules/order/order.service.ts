@@ -27,6 +27,9 @@ export class OrderService {
             const orders = await this.prisma.order.findMany({
                 take: limit,
                 skip: offset,
+                where: {
+                    professional_fk: null
+                }
             });
             return orders;
         } catch (error) {
