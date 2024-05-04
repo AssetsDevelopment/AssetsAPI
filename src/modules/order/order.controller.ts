@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Query, ParseIntPipe } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -46,10 +46,13 @@ export class OrderController {
     }
 
     /**
-     * Buscar un pedido por profesional
+     * Buscar pedidos por profesional
      */
     @Get('professional/:id')
-    findByProfessional(@Param('id', ParseIntPipe, ParamIdPipeTsPipe) id: number) {
-        return this.orderService.findByProfessional(id);
+    findByProfessional(
+        @Query() paginationDto: PaginationDto,
+        @Param('id', ParseIntPipe, ParamIdPipeTsPipe) id: number
+    ) {
+        return this.orderService.findByProfessional(id, paginationDto);
     }
 }

@@ -53,12 +53,22 @@ export class OrderService {
         }
     }
     
-    async findByProfessional(id: number) {
+    async findByProfessional(id: number, paginationDto: PaginationDto) {
+        const {limit, offset} = paginationDto;
 
         try {
-            const order = await this.prisma.order.findFirst({
+            const order = await this.prisma.order.findMany({
                 where: {
                     professional_fk: id
+                },
+                take: limit,
+                skip: offset,
+                include: {
+                    patient:{
+                        select: {
+                            name: true
+                        }
+                    }
                 }
             });
             
