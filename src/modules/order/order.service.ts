@@ -63,12 +63,25 @@ export class OrderService {
                 },
                 take: limit,
                 skip: offset,
-                include: {
-                    patient:{
+                select:{
+                    treatment: {
                         select: {
                             name: true
                         }
-                    }
+                    }, 
+                    frequency: true,
+                    total_sessions: true,
+                    patient: {
+                        select: {
+                            name: true,
+                            healthcare_provider: true,
+                            company: {
+                                select: {
+                                    name: true
+                                }
+                            },
+                        }
+                    },
                 }
             });
             
