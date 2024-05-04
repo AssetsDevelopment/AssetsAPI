@@ -64,13 +64,18 @@ export class OrderService {
                 take: limit,
                 skip: offset,
                 select:{
+                    order_id: true,
+                    order_fk: true,
+                    client_fk: true,
+                    patient_fk: true,
+                    treatment_fk: true,
+                    frequency: true,
+                    total_sessions: true,
                     treatment: {
                         select: {
                             name: true
                         }
                     }, 
-                    frequency: true,
-                    total_sessions: true,
                     patient: {
                         select: {
                             name: true,
