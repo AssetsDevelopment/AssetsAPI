@@ -19,7 +19,7 @@ export class OrderController {
     }
 
     /**
-     * Listar todos los pedidos sin profesional asignado
+     * Listar todos los pedidos sin profesional asignadoo
      */
     @Get()
     findAll(@Query() paginationDto: PaginationDto) {
