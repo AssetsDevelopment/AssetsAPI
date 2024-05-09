@@ -1,5 +1,6 @@
 Dockerfile
 docker-compose.yml
+.env
 .git
 .dockerignore
 node_modules/
