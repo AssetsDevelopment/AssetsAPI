@@ -49,5 +49,5 @@ $ docker compose -f docker-compose.prod.yml up app -d
 
 ```bash
 # run the app
-$ docker compose -f docker-compose.prod.yml up -d
+$ docker compose -f docker-compose.prod.yml up -d 
 ``` 
