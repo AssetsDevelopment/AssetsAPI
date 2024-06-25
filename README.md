@@ -51,3 +51,4 @@ $ docker compose -f docker-compose.prod.yml up app -d
 # run the app
 $ docker compose -f docker-compose.prod.yml up -d 
 ``` 
+rama graphql
