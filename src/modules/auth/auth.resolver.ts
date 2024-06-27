@@ -25,7 +25,7 @@ export class AuthResolver {
         return this.authService.loginProfessional(loginInput);
     }
 
-    @Auth(user_types.client)
+    @Auth(user_types.client, user_types.professional)
     @Query(() => String)
     async hello(
         @CurrentUser('id') user: UserAuth

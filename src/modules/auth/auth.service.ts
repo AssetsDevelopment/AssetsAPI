@@ -35,11 +35,12 @@ export class AuthService {
     ) {}
 
     private getJwtToken(
-        id: number
+        id: number,
+        user_type: user_types
     ): string { 
         return this.jwtService.sign({
             id,
-            user_type: user_types.client
+            user_type
         });
     }
 
@@ -49,19 +50,18 @@ export class AuthService {
 
         const {email, password} = loguinInput;
 
-        const [{user_login}]: [{user_login: Prisma.clientWhereUniqueInput}] = await this.prisma.$queryRaw`
+        const [{user_login}]: [{user_login: number}] = await this.prisma.$queryRaw`
             SELECT user_login(${email}, ${password})
         `;
 
         if (!user_login) throw new UnauthorizedException('Credentials are not valid')
 
-        const user = await this.userService.findOneByUnique({email}, {
-            user_id: true,
-            ...this.properties
-        })
+        const user = await this.userService.findOneByUnique({
+            user_id: user_login
+        }, {...this.properties})
 
         const userAuth: UserAuth = {
-            id: user.user_id,
+            id: user_login,
             name: user.name,
             last_name: user.last_name,
             email: user.email,
@@ -72,7 +72,7 @@ export class AuthService {
             updated_at: user.updated_at,    
         }
 
-        const token = this.getJwtToken(userAuth.id);
+        const token = this.getJwtToken(userAuth.id, userAuth.user_type);
 
         return {
             token, 
@@ -86,35 +86,31 @@ export class AuthService {
 
         const {email, phone, password} = loguinInput;
 
-        // TODO: pueden pasar varios errores.
-        // 1. el phone o email no llega entonces falla la busqueda
-        // Solucion: fijarse cual dato llego y buscar por ese dato
+        const [{professional_login}]: [{professional_login: number}] = await this.prisma.$queryRaw`
+            SELECT professional_login(${email}, ${phone}, ${password})
+        `;
 
-        const user = await this.professionalService.findFirst({
-            email,
-            phone
-        }, {
-            professional_id: true,
+        if (!professional_login) throw new UnauthorizedException('Credentials are not valid')
+
+        const professional = await this.professionalService.findOneByUnique({professional_id: professional_login}, {
             ...this.properties
         })
 
         const userAuth: UserAuth = {
-            id: user.professional_id,
-            name: user.name,
-            last_name: user.last_name,
-            email: user.email,
-            password: user.password,
-            is_active: user.is_active,
-            user_type: user.user_type,
-            created_at: user.created_at,
-            updated_at: user.updated_at,    
+            id: professional_login,
+            name: professional.name,
+            last_name: professional.last_name,
+            email: professional.email,
+            password: professional.password,
+            is_active: professional.is_active,
+            user_type: professional.user_type,
+            created_at: professional.created_at,
+            updated_at: professional.updated_at,    
         }
 
-        if (!bcrypt.compareSync(password, userAuth.password)) {
-            throw new Error('Invalid credentials');
-        }
+        // TODO: desinstalar bcrypt porque de eso se encarga la base de datos
 
-        const token = this.getJwtToken(userAuth.id);
+        const token = this.getJwtToken(userAuth.id, userAuth.user_type);
 
         return {
             token, 

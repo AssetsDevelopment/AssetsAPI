@@ -8,7 +8,7 @@
   "scripts": {
     "prisma:generate": "prisma generate",
     "prisma:db-pull": "prisma db pull",
-    "docker": "docker volume rm assets-api_postgres-db && docker-compose pull && docker-compose up -d",
+    "docker": "docker volume rm assetsapi_postgres-db && docker-compose pull && docker-compose up -d",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
