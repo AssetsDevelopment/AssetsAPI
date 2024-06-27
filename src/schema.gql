@@ -50,6 +50,15 @@ enum user_types {
   professional
 }
 
+type Client {
+  client_id: ID!
+  name: String!
+  last_name: String!
+  is_active: Boolean!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
 type UserAuth {
   id: ID!
   name: String!
@@ -64,16 +73,20 @@ type UserAuth {
 type AuthResponse {
   token: String!
   userAuth: UserAuth!
+  Client: Client
+  Professional: Professional
 }
 
 type Query {
   revalidateUserAuth: AuthResponse!
+  findClient: Client!
   professional(id: Int!): Professional!
 }
 
 type Mutation {
   loginClient(loginInput: ClientLoguinInput!): AuthResponse!
   loginProfessional(loginInput: ProfessionalLoguinInput!): AuthResponse!
+  updateClient(updateClientInput: UpdateClientInput!): Client!
 }
 
 input ClientLoguinInput {
@@ -85,4 +98,8 @@ input ProfessionalLoguinInput {
   email: String
   phone: String
   password: String!
+}
+
+input UpdateClientInput {
+  id: Int!
 }

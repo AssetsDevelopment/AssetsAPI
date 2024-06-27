@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { CreateClientInput } from './dto/create-client.input';
-import { UpdateClientInput } from './dto/update-client.input';
+import { CreateClientInput, UpdateClientInput } from './dto';
 import { Prisma } from '@prisma/client';
 import { Client } from './entities/client.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
+// import { UserAuth } from '../auth/entities/user-auth.entity';
 
 @Injectable()
 export class ClientService {
@@ -40,6 +40,27 @@ export class ClientService {
 
         } catch (error) {
             // TODO: manage error
+            throw new BadRequestException(error)
+        }
+    }
+
+    async findClintByUserId(
+        userWhereUniqueInput: Prisma.userWhereUniqueInput,
+        select?: Prisma.clientSelect
+    ): Promise<Client> {
+
+        try {
+
+            const user = await this.prisma.user.findUniqueOrThrow({
+                where: userWhereUniqueInput,
+                select: {client_fk: true}
+            })
+
+            const {client_fk: client_id} = user
+
+            return await this.findOneByUnique({client_id},select)
+
+        } catch (error) {
             throw new BadRequestException(error)
         }
     }

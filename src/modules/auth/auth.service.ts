@@ -10,6 +10,8 @@ import { AuthResponse } from './types/auth-response.type';
 import * as bcrypt from 'bcrypt';
 import { user_types } from './enums/user_types.enum';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Client } from '../client/entities/client.entity';
+import { Professional } from '../professional/entities/professional.entity';
 
 @Injectable()
 export class AuthService {
@@ -35,8 +37,8 @@ export class AuthService {
     ) {}
 
     private getJwtToken(
-        id: number,
-        user_type: user_types
+        id: UserAuth['id'],
+        user_type: UserAuth['user_type']
     ): string { 
         return this.jwtService.sign({
             id,
@@ -58,7 +60,18 @@ export class AuthService {
 
         const user = await this.userService.findOneByUnique({
             user_id: user_login
-        }, {...this.properties})
+        }, {
+            client_fk: true,
+            ...this.properties
+        })
+
+        // Verifico que el usuario este activo
+        if (!user.is_active) throw new UnauthorizedException('User is not active') 
+
+        // Verifico que el cliente este activo
+        const client = await this.clientService.findOneByUnique({client_id: user.client_fk}, {is_active: true})
+
+        if (!client.is_active) throw new UnauthorizedException('Client is not active') 
 
         const userAuth: UserAuth = {
             id: user_login,
@@ -91,21 +104,17 @@ export class AuthService {
         `;
 
         if (!professional_login) throw new UnauthorizedException('Credentials are not valid')
-
+            
         const professional = await this.professionalService.findOneByUnique({professional_id: professional_login}, {
             ...this.properties
-        })
-
+        }) as unknown as UserAuth
+        
+        // Verifico que el profesional este activo
+        if (!professional.is_active) throw new UnauthorizedException('Professional is not active')
+            
         const userAuth: UserAuth = {
             id: professional_login,
-            name: professional.name,
-            last_name: professional.last_name,
-            email: professional.email,
-            password: professional.password,
-            is_active: professional.is_active,
-            user_type: professional.user_type,
-            created_at: professional.created_at,
-            updated_at: professional.updated_at,    
+            ...professional    
         }
 
         // TODO: desinstalar bcrypt porque de eso se encarga la base de datos
@@ -119,8 +128,11 @@ export class AuthService {
     }
 
     async validateClient(
-        user_id: number,
+        user_id: UserAuth['id'],
     ): Promise<UserAuth> {
+
+        // Aca no voy hacer la verificacion de si el usuario o el cliente esta activo ya que la voy hacer en los "loguins", de esta forma aliviano este proceso. Esto va a producir que todo token activo funcione para ejecutar los endpoinst por mas de que el usuario o el cliente no este activo.
+        // Luego cuando ese venza el token, el usuario debera loguearse nuevamente y ahi se verificara si esta activo o no.
 
         // Verifico que el usuario este activo
         const user = await this.userService.findOneByUnique({user_id}, {
@@ -129,8 +141,6 @@ export class AuthService {
             ...this.properties
         })
 
-        if (!user.is_active) throw new UnauthorizedException('User is not active') 
-            
         // Verifico que el cliente este activo
         const client = await this.clientService.findOneByUnique({client_id: user.client_fk}, {is_active: true})
 
@@ -153,8 +163,11 @@ export class AuthService {
     }
 
     async validateProfessional(
-        professional_id: number
+        professional_id: UserAuth['id'],
     ): Promise<UserAuth> {
+
+        // Aca no voy hacer la verificacion de si el usuario o el cliente esta activo ya que la voy hacer en los "loguins", de esta forma aliviano este proceso. Esto va a producir que todo token activo funcione para ejecutar los endpoinst por mas de que el profesional no este activo.
+        // Luego cuando ese venza el token, el usuario debera loguearse nuevamente y ahi se verificara si esta activo o no.
 
         const professional = await this.professionalService.findOneByUnique({professional_id}, {
             ...this.properties
