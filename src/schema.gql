@@ -1,0 +1,88 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Professional {
+  professional_id: ID!
+  name: String!
+  last_name: String!
+  gender: gender_options!
+  cuit: String!
+  fiscal_status: fiscal_status!
+  phone: String!
+  email: String!
+  birthdate: DateTime!
+  bank: String!
+  bank_account: String!
+  cbu: String!
+  alias: String!
+  note: String!
+  is_active: Boolean!
+  user_type: user_types!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+"""Enumeración que representa el genero del usuario."""
+enum gender_options {
+  m
+  f
+  M
+  F
+}
+
+"""Enumeración que representa los tipos fiscales."""
+enum fiscal_status {
+  monotributista
+  responsable_inscripto
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""
+Enumeración que representa los diferentes tipos de usuarios del sistema: `client` (coordinadores) y "professional` (profesionales).
+"""
+enum user_types {
+  client
+  professional
+}
+
+type UserAuth {
+  id: ID!
+  name: String!
+  last_name: String!
+  email: String!
+  is_active: Boolean!
+  user_type: user_types!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type AuthResponse {
+  token: String!
+  userAuth: UserAuth!
+}
+
+type Query {
+  hello: String!
+  professional(id: Int!): Professional!
+}
+
+type Mutation {
+  loginClient(loginInput: ClientLoguinInput!): AuthResponse!
+  loginProfessional(loginInput: ProfessionalLoguinInput!): AuthResponse!
+}
+
+input ClientLoguinInput {
+  email: String!
+  password: String!
+}
+
+input ProfessionalLoguinInput {
+  email: String
+  phone: String
+  password: String!
+}

@@ -1,70 +1,72 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { CreateProfessionalDto, UpdateProfessionalDto } from './dto';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { CreateProfessionalInput } from './dto/create-professional.input';
+import { UpdateProfessionalInput } from './dto/update-professional.input';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PaginationDto } from 'src/modules/common/dto/pagination.dto';
+import { Prisma } from '@prisma/client';
+import { Professional } from './entities/professional.entity';
 
 @Injectable()
 export class ProfessionalService {
+
     private readonly logger = new Logger('ProfessionalService')
 
     constructor(
         private readonly prisma: PrismaService
     ) {}
 
-    async create(createProfessionalDto: CreateProfessionalDto) {
-        try {
-            const professional = await this.prisma.professional.create({data: createProfessionalDto});
-            return professional; 
-        } catch (error) {
-            this.prisma.handleDBExeption(error, this.logger);
-        } 
+    create(createProfessionalInput: CreateProfessionalInput) {
+        return 'This action adds a new professional';
     }
 
-    async findAll(paginationDto: PaginationDto) {
-        const {limit = 10, offset = 0} = paginationDto;
-
-        try {
-            const professionals = await this.prisma.professional.findMany({
-                take: limit,
-                skip: offset
-            });
-            return professionals;
-        } catch (error) {
-            this.prisma.handleDBExeption(error, this.logger);
-        }
+    findAll() {
+        return `This action returns all professional`;
     }
 
-    async findOne(id: number) {
+    findOne(id: number) {
+        return `This action returns a #${id} professional`;
+    }
+
+    async findFirst(
+        where: Prisma.professionalWhereInput,
+        select?: Prisma.professionalSelect
+    ): Promise<Professional> {
 
         try {
-            const professional = await this.prisma.professional.findUnique({
-                where: {
-                    professional_id: id
-                }
-            });
             
-            if (!professional) 
-                throw new NotFoundException(`The professional with ID ${id} does not exist`);
-
-            return professional;
+            return await this.prisma.professional.findFirstOrThrow({
+                where,
+                select
+            }) as Professional // le pongo el as para que no me de error ya que choca con el "gender_options"
 
         } catch (error) {
-            this.prisma.handleDBExeption(error, this.logger);   
+            // TODO: manage error
+            throw new BadRequestException(error)
         }
     }
 
-    async update(id: number, updateProfessionalDto: UpdateProfessionalDto) {
-        
-        await this.findOne(id);
+    async findOneByUnique(
+        professionalWhereUniqueInput: Prisma.professionalWhereUniqueInput,
+        select?: Prisma.professionalSelect
+    ): Promise<Professional> {
 
         try {
-            const updatedProfessional = await this.prisma.professional.update({
-                where: {professional_id: id},
-                data: updateProfessionalDto
-            });
-            return updatedProfessional;
+            
+            return await this.prisma.professional.findUniqueOrThrow({
+                where: professionalWhereUniqueInput,
+                select
+            }) as Professional // le pongo el as para que no me de error ya que choca con el "gender_options"
+
         } catch (error) {
-            this.prisma.handleDBExeption(error, this.logger);
+            // TODO: manage error
+            throw new BadRequestException(error)
         }
+    }
+
+    update(id: number, updateProfessionalInput: UpdateProfessionalInput) {
+        return `This action updates a #${id} professional`;
+    }
+
+    remove(id: number) {
+        return `This action removes a #${id} professional`;
     }
 }

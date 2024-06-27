@@ -1,48 +1,38 @@
-import { ConfigService } from '@nestjs/config';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { user as User } from '@prisma/client';
-import { JwtPayload } from 'src/modules/auth/interfaces';
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { PassportStrategy } from "@nestjs/passport";
+import { ExtractJwt, Strategy } from "passport-jwt";
+import { UserAuth } from "src/modules/auth/entities/user-auth.entity";
+import { JwtPayload } from "../interfaces/jwt-payload.interface";
+import { AuthService } from "../auth.service";
+import { user_types } from "../enums/user_types.enum";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-    private readonly logger = new Logger('JwtStrategy')
-
+    
     constructor(
-        private readonly prisma: PrismaService,
+        private readonly authService: AuthService,
         configService: ConfigService
     ) {
 
         super({
             secretOrKey: configService.get('JWT_SECRET'),
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        });
-
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
+        })
     }
 
-    async validate(payload: JwtPayload): Promise<User> {
+    async validate(payload: JwtPayload): Promise<UserAuth> {
+        const { id , user_type } = payload;
 
-        const {user_id} = payload;
+        const user = user_type === user_types.client
+            ? await this.authService.validateClient(id as any)
+        : user_type === user_types.professional
+            ? await this.authService.validateProfessional(id as any)
+        : undefined;
 
-        const user = await this.prisma.user.findUnique({
-            where: {
-                user_id: user_id
-            }
-        })
-        
-        const user_professional = await this.prisma.professional.findUnique({
-            where: {
-                professional_id: user_id
-            }
-        })
+        if (!user) throw new UnauthorizedException('Unauthorized access')
 
-        if (!user.is_active && !user_professional) {
-            this.logger.error('User is not active')
-            throw new UnauthorizedException('User is not active')
-        }
-
-        return user;
+        return user
     }
+ 
 }

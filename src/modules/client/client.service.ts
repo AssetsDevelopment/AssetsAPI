@@ -1,7 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { CreateClientDto, UpdateClientDto } from './dto';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { CreateClientInput } from './dto/create-client.input';
+import { UpdateClientInput } from './dto/update-client.input';
+import { Prisma } from '@prisma/client';
+import { Client } from './entities/client.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PaginationDto } from 'src/modules/common/dto/pagination.dto';
 
 @Injectable()
 export class ClientService {
@@ -12,62 +14,41 @@ export class ClientService {
         private readonly prisma: PrismaService
     ) {}
 
-    async create(createClientDto: CreateClientDto) {
-        try {
-            const client = await this.prisma.client.create({data: createClientDto});
-            return client; 
-        } catch (error) {
-            this.prisma.handleDBExeption(error, this.logger);
-        }
+    create(createClientInput: CreateClientInput) {
+        return 'This action adds a new client';
     }
 
-    async findAll(paginationDto: PaginationDto) {
-
-        const {limit = 10, offset = 0} = paginationDto;
-
-        try {
-            const clients = await this.prisma.client.findMany({
-                take: limit,
-                skip: offset
-            });
-            return clients;
-        } catch (error) {
-            this.prisma.handleDBExeption(error, this.logger);
-        }
-
+    findAll() {
+        return `This action returns all client`;
     }
 
-    async findOne(id: number) {
+    findOne(id: number) {
+        return `This action returns a #${id} client`;
+    }
+
+    async findOneByUnique(
+        clientWhereUniqueInput: Prisma.clientWhereUniqueInput,
+        select?: Prisma.clientSelect
+    ): Promise<Client> {
 
         try {
-            const client = await this.prisma.client.findUnique({
-                where: {
-                    client_id: id
-                }
-            });
             
-            if (!client) 
-                throw new NotFoundException(`The client with ID ${id} does not exist`);
-
-            return client;
+            return await this.prisma.client.findUniqueOrThrow({
+                where: clientWhereUniqueInput,
+                select
+            })
 
         } catch (error) {
-            this.prisma.handleDBExeption(error, this.logger);   
+            // TODO: manage error
+            throw new BadRequestException(error)
         }
     }
 
-    async update(id: number, updateClientDto: UpdateClientDto) {
-        
-        await this.findOne(id);
+    update(id: number, updateClientInput: UpdateClientInput) {
+        return `This action updates a #${id} client`;
+    }
 
-        try {
-            const updatedClient = await this.prisma.client.update({
-                where: {client_id: id},
-                data: updateClientDto
-            });
-            return updatedClient;
-        } catch (error) {
-            this.prisma.handleDBExeption(error, this.logger);
-        }
+    remove(id: number) {
+        return `This action removes a #${id} client`;
     }
 }

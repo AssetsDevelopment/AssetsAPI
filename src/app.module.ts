@@ -1,44 +1,35 @@
+import { join } from 'path';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default'
 import { 
-    ProfessionalModule,
-    ClientModule,
     AuthModule,
     UserModule,
-    ScreenModule,
-    PermissionModule,
-    WorkInvitationModule,
-    ClientHasProfessionalModule,
-    CompanyModule,
-    PatientModule,
-    TreatmentModule,
-    CompanyHasTreatmentModule,
-    TreatmentHasProfessionalModule,
-    OrderModule,
-    ClaimModule
+    ClientModule,
+    ProfessionalModule,
+    CommonModule
 } from './modules';
 
 @Module({
     imports: [
         ConfigModule.forRoot(),
+        GraphQLModule.forRoot<ApolloDriverConfig>({
+            driver: ApolloDriver,
+            autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+            playground: false,
+            plugins: [
+                ApolloServerPluginLandingPageLocalDefault(), 
+            ],
+        }),
         AuthModule,
-        ClaimModule,
-        ClientModule,
-        ClientHasProfessionalModule,
-        CompanyHasTreatmentModule,
-        CompanyModule,
-        OrderModule,
-        PatientModule,
-        PermissionModule,
-        ProfessionalModule,
-        ScreenModule,
-        TreatmentHasProfessionalModule,
-        TreatmentModule,
         UserModule,
-        WorkInvitationModule,
+        ClientModule,
+        ProfessionalModule,
+        CommonModule,
     ],
     controllers: [],
     providers: [],
 })
-
 export class AppModule {}

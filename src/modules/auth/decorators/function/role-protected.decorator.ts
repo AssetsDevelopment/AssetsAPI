@@ -1,6 +1,6 @@
 import { SetMetadata } from '@nestjs/common';
-import { ValidRoles } from "src/modules/auth/interfaces/valid-roles";
+import { user_types } from '../../enums/user_types.enum';
 
-export const META_ROLES = 'roles';
+export const META_USER_TYPES = 'user_types';
 
-export const RoleProtected = (...args: ValidRoles[]) => SetMetadata(META_ROLES, args);
+export const RoleProtected = (...args: user_types[]) => SetMetadata(META_USER_TYPES, args);

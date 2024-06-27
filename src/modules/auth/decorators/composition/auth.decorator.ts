@@ -1,17 +1,14 @@
 import { UseGuards, applyDecorators } from "@nestjs/common";
-import { ValidRoles } from "src/modules/auth/interfaces/valid-roles";
 import { RoleProtected } from "src/modules/auth/decorators";
-import { AuthGuard } from "@nestjs/passport";
 import { UserRoleGuard } from "src/modules/auth/guards/user-role.guard";
-import { ApiBearerAuth } from "@nestjs/swagger";
+import { user_types } from "../../enums/user_types.enum";
+import { JwtAuthGuard } from "../../guards/jwt-auth.guard";
 
-export function Auth(...roles: ValidRoles[]) {
+export function Auth(...roles: user_types[]) {
 
     return applyDecorators(
  
-        ApiBearerAuth(),
         RoleProtected(...roles),
-        UseGuards( AuthGuard(), UserRoleGuard)
+        UseGuards( JwtAuthGuard, UserRoleGuard)
     )
-
 }
