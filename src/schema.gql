@@ -67,7 +67,7 @@ type AuthResponse {
 }
 
 type Query {
-  hello: String!
+  revalidateUserAuth: AuthResponse!
   professional(id: Int!): Professional!
 }
 

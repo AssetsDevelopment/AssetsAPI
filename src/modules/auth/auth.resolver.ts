@@ -26,11 +26,11 @@ export class AuthResolver {
     }
 
     @Auth(user_types.client, user_types.professional)
-    @Query(() => String)
-    async hello(
-        @CurrentUser('id') user: UserAuth
-    ) {
-        return 'Hello World';
+    @Query(() => AuthResponse, { name: 'revalidateUserAuth' })
+    revalidateToken(
+        @CurrentUser() userAuth: UserAuth
+    ): AuthResponse {
+        return this.authService.revalidateToken(userAuth);
     }
 
 }

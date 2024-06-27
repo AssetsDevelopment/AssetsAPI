@@ -167,4 +167,17 @@ export class AuthService {
 
         return userAuth
     }
+
+    revalidateToken(
+        userAuth: UserAuth
+    ): AuthResponse {
+
+        const {id, user_type} = userAuth;
+        const token = this.getJwtToken(id, user_type);
+
+        return {
+            token,
+            userAuth
+        }
+    }
 }
