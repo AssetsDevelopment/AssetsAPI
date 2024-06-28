@@ -30,7 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             ? await this.authService.validateProfessional(id as any)
         : undefined;
 
-        if (!user) throw new UnauthorizedException('Unauthorized access')
+        // if (!user) throw new UnauthorizedException('Unauthorized access')
 
         return user
     }

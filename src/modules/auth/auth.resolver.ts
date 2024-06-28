@@ -55,7 +55,9 @@ export class AuthResolver {
 
         if (user_type !== user_types.client) return null;
     
-        return this.clientService.findClintByUserId({user_id})
+        return this.clientService.findClintByUserId({
+            userWhereUniqueInput: {user_id}
+        })
     }
 
     @ResolveField(() => Professional, {name: 'Professional', nullable: true})
@@ -68,6 +70,8 @@ export class AuthResolver {
 
         if (user_type !== user_types.professional) return null;
     
-        return this.professionalService.findOneByUnique({professional_id})
+        return this.professionalService.findOneByUnique({
+            professionalWhereUniqueInput: {professional_id} 
+        })
     }
 }

@@ -1,9 +1,10 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from './entities/user.entity';
 import { Prisma } from '@prisma/client';
+import { UserAuth } from '../auth/entities/user-auth.entity';
 
 @Injectable()
 export class UserService {
@@ -18,10 +19,12 @@ export class UserService {
         return 'This action adds a new user';
     }
 
-    async findOneByUnique(
+    async findOneByUnique(params: {
         userWhereUniqueInput: Prisma.userWhereUniqueInput,
         select?: Prisma.userSelect
-    ): Promise<User> {
+    }): Promise<User> {
+
+        const { userWhereUniqueInput, select } = params
 
         try {
             
@@ -36,10 +39,12 @@ export class UserService {
         }
     }
 
-    async findFirst(
+    async findFirst(params: {
         where: Prisma.userWhereInput,
         select?: Prisma.userSelect
-    ): Promise<User> {
+    }): Promise<User> {
+
+        const { where, select } = params
 
         try {
             
@@ -54,16 +59,34 @@ export class UserService {
         }
     }
 
-    async findAll(
+    async findAll(params: {
         where: Prisma.userWhereInput,
-        select?: Prisma.userSelect
-    ): Promise<User[] | User> {
+        select?: Prisma.userSelect,
+        skip?: Prisma.userFindManyArgs['skip'],
+        take?: Prisma.userFindManyArgs['take'],
+    }): Promise<User[] | User> {
+
+        const { where, select, skip, take } = params
+        const { user_id } = where
 
         try {
+
+            const user = await this.findOneByUnique({
+                userWhereUniqueInput: {
+                    user_id: user_id as UserAuth['id']
+                },select: {
+                    client_fk: true,
+                    is_admin: true
+                }
+            })
+        
+            if (!user.is_admin) throw new UnauthorizedException('You are not authorized to perform this action')
             
             return await this.prisma.user.findMany({
                 where,
-                select
+                select,
+                skip,
+                take
             }) as User[] // le pongo el as para que no me de error ya que choca con el "user_type"
 
         } catch (error) {

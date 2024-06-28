@@ -3,7 +3,6 @@ import { CreateClientInput, UpdateClientInput } from './dto';
 import { Prisma } from '@prisma/client';
 import { Client } from './entities/client.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
-// import { UserAuth } from '../auth/entities/user-auth.entity';
 
 @Injectable()
 export class ClientService {
@@ -26,10 +25,12 @@ export class ClientService {
         return `This action returns a #${id} client`;
     }
 
-    async findOneByUnique(
+    async findOneByUnique(params: {
         clientWhereUniqueInput: Prisma.clientWhereUniqueInput,
         select?: Prisma.clientSelect
-    ): Promise<Client> {
+    }): Promise<Client> {
+
+        const {clientWhereUniqueInput, select} = params
 
         try {
             
@@ -44,10 +45,12 @@ export class ClientService {
         }
     }
 
-    async findClintByUserId(
+    async findClintByUserId(params: {
         userWhereUniqueInput: Prisma.userWhereUniqueInput,
         select?: Prisma.clientSelect
-    ): Promise<Client> {
+    }): Promise<Client> {
+
+        const {userWhereUniqueInput, select} = params
 
         try {
 
@@ -58,15 +61,53 @@ export class ClientService {
 
             const {client_fk: client_id} = user
 
-            return await this.findOneByUnique({client_id},select)
+            return await this.findOneByUnique({
+                clientWhereUniqueInput: {client_id},
+                select
+            })
 
         } catch (error) {
             throw new BadRequestException(error)
         }
     }
 
-    update(id: number, updateClientInput: UpdateClientInput) {
-        return `This action updates a #${id} client`;
+    async updateClintByUserId(params: {
+        where: Prisma.userWhereUniqueInput, 
+        data: Prisma.clientUpdateInput,
+    }): Promise<Client> {
+
+        const {where, data} = params
+        
+        const client = await this.findClintByUserId({
+            userWhereUniqueInput: where,
+            select: {client_id: true}
+        })
+
+        return await this.update({
+            where:{client_id: client.client_id}, 
+            data
+        })
+    }
+
+    async update(params: {
+        where: Prisma.clientWhereUniqueInput, 
+        data: Prisma.clientUpdateInput,
+    }): Promise<Client> {
+
+        console.log('params', params)
+
+        const {where, data} = params
+
+        try {
+
+            return await this.prisma.client.update({
+                where,
+                data
+            })
+
+        } catch (error) {
+            throw new BadRequestException(error)
+        }
     }
 
     remove(id: number) {

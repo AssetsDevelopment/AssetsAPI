@@ -8,27 +8,31 @@ import { UserAuth } from '../auth/entities/user-auth.entity';
 
 @Resolver(() => Client)
 export class ClientResolver {
-    constructor(private readonly clientService: ClientService) {}
+
+    constructor(
+        private readonly clientService: ClientService
+    ) {}
 
     @Auth(user_types.client)
     @Query(() => Client, { name: 'findClient' })
-    findClient(
+    async findClient(
         @CurrentUser('id') user_id: UserAuth['id']
     ): Promise<Client> {
         return this.clientService.findClintByUserId({
-            user_id
+            userWhereUniqueInput: {user_id}
         });
     }
 
+    @Auth(user_types.client)
     @Mutation(() => Client, { name: 'updateClient' })
-    updateClient(
-        @Args('updateClientInput') updateClientInput: UpdateClientInput
-    ) {
-        return this.clientService.update(updateClientInput.id, updateClientInput);
-    }
+    async updateClient(
+        @Args('updateClientInput') updateClientInput: UpdateClientInput,
+        @CurrentUser('id') user_id: UserAuth['id']
+    ): Promise<Client> {
 
-//   @Mutation(() => Client)
-//   removeClient(@Args('id', { type: () => Int }) id: number) {
-//     return this.clientService.remove(id);
-//   }
+        return this.clientService.updateClintByUserId({
+            where: {user_id},
+            data: updateClientInput
+        });
+    }
 }

@@ -59,17 +59,21 @@ export class AuthService {
         if (!user_login) throw new UnauthorizedException('Credentials are not valid')
 
         const user = await this.userService.findOneByUnique({
-            user_id: user_login
-        }, {
-            client_fk: true,
-            ...this.properties
+            userWhereUniqueInput: {user_id: user_login},
+            select: {
+                client_fk: true,
+                ...this.properties
+            }
         })
 
         // Verifico que el usuario este activo
         if (!user.is_active) throw new UnauthorizedException('User is not active') 
 
         // Verifico que el cliente este activo
-        const client = await this.clientService.findOneByUnique({client_id: user.client_fk}, {is_active: true})
+        const client = await this.clientService.findOneByUnique({
+            clientWhereUniqueInput: {client_id: user.client_fk},
+            select: {is_active: true}
+        })
 
         if (!client.is_active) throw new UnauthorizedException('Client is not active') 
 
@@ -105,10 +109,11 @@ export class AuthService {
 
         if (!professional_login) throw new UnauthorizedException('Credentials are not valid')
             
-        const professional = await this.professionalService.findOneByUnique({professional_id: professional_login}, {
-            ...this.properties
+        const professional = await this.professionalService.findOneByUnique({
+            professionalWhereUniqueInput: {professional_id: professional_login},
+            select: {...this.properties}
         }) as unknown as UserAuth
-        
+
         // Verifico que el profesional este activo
         if (!professional.is_active) throw new UnauthorizedException('Professional is not active')
             
@@ -131,32 +136,20 @@ export class AuthService {
         user_id: UserAuth['id'],
     ): Promise<UserAuth> {
 
-        // Aca no voy hacer la verificacion de si el usuario o el cliente esta activo ya que la voy hacer en los "loguins", de esta forma aliviano este proceso. Esto va a producir que todo token activo funcione para ejecutar los endpoinst por mas de que el usuario o el cliente no este activo.
-        // Luego cuando ese venza el token, el usuario debera loguearse nuevamente y ahi se verificara si esta activo o no.
+        // Solo verifico si el usuario esta activo, ya que el cliente se va a verificar en el "loguin"
 
         // Verifico que el usuario este activo
-        const user = await this.userService.findOneByUnique({user_id}, {
-            user_id: true,
-            client_fk: true,
-            ...this.properties
-        })
+        const user = await this.userService.findOneByUnique({
+            userWhereUniqueInput: {user_id},
+            select: {...this.properties}
+        }) as unknown as UserAuth
 
-        // Verifico que el cliente este activo
-        const client = await this.clientService.findOneByUnique({client_id: user.client_fk}, {is_active: true})
-
-        if (!client.is_active) throw new UnauthorizedException('Client is not active') 
+        if (!user.is_active) throw new UnauthorizedException('User is not active')
 
         // Construyo el UserAuth
         const userAuth: UserAuth  = {
             id: user_id,
-            name: user.name,
-            last_name: user.last_name,
-            email: user.email,
-            password: user.password,
-            is_active: user.is_active,
-            user_type: user.user_type,
-            created_at: user.created_at,
-            updated_at: user.updated_at,
+            ...user
         }
 
         return userAuth
@@ -166,12 +159,12 @@ export class AuthService {
         professional_id: UserAuth['id'],
     ): Promise<UserAuth> {
 
-        // Aca no voy hacer la verificacion de si el usuario o el cliente esta activo ya que la voy hacer en los "loguins", de esta forma aliviano este proceso. Esto va a producir que todo token activo funcione para ejecutar los endpoinst por mas de que el profesional no este activo.
-        // Luego cuando ese venza el token, el usuario debera loguearse nuevamente y ahi se verificara si esta activo o no.
-
-        const professional = await this.professionalService.findOneByUnique({professional_id}, {
-            ...this.properties
+        const professional = await this.professionalService.findOneByUnique({
+            professionalWhereUniqueInput: {professional_id},
+            select: {...this.properties}
         }) as unknown as UserAuth
+
+        if (!professional.is_active) throw new UnauthorizedException('User is not active')
 
         const userAuth: UserAuth = {
             id: professional_id,

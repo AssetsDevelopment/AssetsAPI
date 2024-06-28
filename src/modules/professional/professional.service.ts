@@ -26,10 +26,12 @@ export class ProfessionalService {
         return `This action returns a #${id} professional`;
     }
 
-    async findFirst(
+    async findFirst(params: {
         where: Prisma.professionalWhereInput,
         select?: Prisma.professionalSelect
-    ): Promise<Professional> {
+    }): Promise<Professional> {
+
+        const { where, select } = params
 
         try {
             
@@ -44,10 +46,13 @@ export class ProfessionalService {
         }
     }
 
-    async findOneByUnique(
+    async findOneByUnique(params: {
         professionalWhereUniqueInput: Prisma.professionalWhereUniqueInput,
         select?: Prisma.professionalSelect
+    }
     ): Promise<Professional> {
+
+        const { professionalWhereUniqueInput, select } = params
 
         try {
             
