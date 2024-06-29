@@ -48,6 +48,7 @@ Enumeración que representa los diferentes tipos de usuarios del sistema: `clien
 enum user_types {
   client
   professional
+  clientAdmin
 }
 
 type Client {
@@ -57,24 +58,6 @@ type Client {
   is_active: Boolean!
   created_at: DateTime!
   updated_at: DateTime!
-}
-
-type UserAuth {
-  id: ID!
-  name: String!
-  last_name: String!
-  email: String!
-  is_active: Boolean!
-  user_type: user_types!
-  created_at: DateTime!
-  updated_at: DateTime!
-}
-
-type AuthResponse {
-  token: String!
-  userAuth: UserAuth!
-  Client: Client
-  Professional: Professional
 }
 
 type User {
@@ -90,17 +73,34 @@ type User {
   updated_at: DateTime!
 }
 
+type UserResponse {
+  token: String!
+  user: User!
+  Client: Client!
+}
+
+type ProfessionalResponse {
+  token: String!
+  professional: Professional!
+}
+
 type Query {
-  revalidateUserAuth: AuthResponse!
-  findClient: Client!
+  revalidateClientAuth: UserResponse!
+  revalidateProfessionalAuth: ProfessionalResponse!
+  Client: Client!
   findUsers(offset: Int = 0, limit: Int = 10, search: String): [User!]!
+  findUser(user_id: ID!): User!
+  User: User!
   professional(id: Int!): Professional!
 }
 
 type Mutation {
-  loginClient(loginInput: ClientLoguinInput!): AuthResponse!
-  loginProfessional(loginInput: ProfessionalLoguinInput!): AuthResponse!
+  loginClient(loginInput: ClientLoguinInput!): UserResponse!
+  loginProfessional(loginInput: ProfessionalLoguinInput!): ProfessionalResponse!
   updateClient(updateClientInput: UpdateClientInput!): Client!
+  createUser(createUserInput: CreateUserInput!): User!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+  changeAcitveUser(user_id: ID!): User!
 }
 
 input ClientLoguinInput {
@@ -117,4 +117,18 @@ input ProfessionalLoguinInput {
 input UpdateClientInput {
   name: String
   last_name: String
+}
+
+input CreateUserInput {
+  name: String!
+  last_name: String!
+  email: String!
+  password: String!
+}
+
+input UpdateUserInput {
+  name: String
+  last_name: String
+  email: String
+  password: String
 }

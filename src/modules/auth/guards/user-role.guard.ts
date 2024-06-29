@@ -3,8 +3,9 @@ import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Observable } from 'rxjs';
 import { META_USER_TYPES } from '../decorators';
-import { UserAuth } from '../entities/user-auth.entity';
 import { user_types } from '../enums/user_types.enum';
+import { User } from 'src/modules/user/entities/user.entity';
+import { Professional } from 'src/modules/professional/entities/professional.entity';
 
 @Injectable()
 export class UserRoleGuard implements CanActivate {
@@ -22,19 +23,34 @@ export class UserRoleGuard implements CanActivate {
         const user_types_mt: user_types[] = this.reflector.get(META_USER_TYPES, ctx.getHandler());
         
         if (!user_types_mt || user_types_mt.length === 0) return true;
-        
-        const user: UserAuth = ctx.getContext().req.user;
-        // const client = ctx.getContext().req.client;
-        
-        if (!user) throw new BadRequestException('User not found');
-        // if ((user.user_type === user_types.client) && !client) throw new BadRequestException('Client type not found');
 
-        if (user_types_mt.includes(user.user_type)) return true;
+        const user: User = ctx.getContext().req.user.user_type === user_types.client ? ctx.getContext().req.user : undefined; 
+        
+        const professional: Professional = ctx.getContext().req.user.user_type === user_types.professional ? ctx.getContext().req.user : undefined; 
 
-        // if (user_types_mt.includes(user_types.clientAdmin) && user.is)
+        const userAuth = user || professional;
+
+        if (!userAuth) throw new BadRequestException('User not found');
+
+        if (user_types_mt.includes(userAuth.user_type)) return true;
+
+        if (
+            userAuth.user_type === user_types.client 
+         && ('is_admin' in userAuth) 
+         && userAuth.is_admin
+        ) return true;
+
+        if (
+            user_types_mt.includes(user_types.clientAdmin) 
+         && userAuth.user_type === user_types.client
+         && ('is_admin' in userAuth) 
+         && !userAuth.is_admin
+        ) throw new ForbiddenException(
+            `User ${userAuth.name} ${userAuth.last_name} neded a user type: ${user_types_mt}`
+        );
 
         throw new ForbiddenException(
-            `User ${user.name} ${user.last_name} need a user type: ${user_types_mt}`
+            `User ${userAuth.name} ${userAuth.last_name} need a user type: ${user_types_mt}`
         );
     }
 }

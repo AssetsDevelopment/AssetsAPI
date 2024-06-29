@@ -1,17 +1,18 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserAuth } from './entities/user-auth.entity';
 import { Prisma } from '@prisma/client';
 import { ClientService } from '../client/client.service';
 import { UserService } from '../user/user.service';
 import { ProfessionalService } from '../professional/professional.service';
 import { ClientLoguinInput, ProfessionalLoguinInput } from './dto/inputs';
-import { AuthResponse } from './types/auth-response.type';
-import * as bcrypt from 'bcrypt';
 import { user_types } from './enums/user_types.enum';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Client } from '../client/entities/client.entity';
 import { Professional } from '../professional/entities/professional.entity';
+import { User } from '../user/entities/user.entity';
+
+// TODO: Hacer un archivo barril
+import { UserResponse } from './types/user-response.type';
+import { ProfessionalResponse } from './types/professional-response.type';
 
 @Injectable()
 export class AuthService {
@@ -37,8 +38,8 @@ export class AuthService {
     ) {}
 
     private getJwtToken(
-        id: UserAuth['id'],
-        user_type: UserAuth['user_type']
+        id: number,
+        user_type: user_types
     ): string { 
         return this.jwtService.sign({
             id,
@@ -48,7 +49,7 @@ export class AuthService {
 
     async loginClient(
         loguinInput: ClientLoguinInput
-    ): Promise<AuthResponse> {
+    ): Promise<UserResponse> {
 
         const {email, password} = loguinInput;
 
@@ -58,48 +59,36 @@ export class AuthService {
 
         if (!user_login) throw new UnauthorizedException('Credentials are not valid')
 
+        // Verifico que el usuario este activo
+        const user_id = user_login;
         const user = await this.userService.findOneByUnique({
-            userWhereUniqueInput: {user_id: user_login},
-            select: {
-                client_fk: true,
-                ...this.properties
-            }
+            userWhereUniqueInput: {user_id}
         })
 
-        // Verifico que el usuario este activo
         if (!user.is_active) throw new UnauthorizedException('User is not active') 
 
         // Verifico que el cliente este activo
+        const {client_fk: client_id} = user;
         const client = await this.clientService.findOneByUnique({
-            clientWhereUniqueInput: {client_id: user.client_fk},
+            clientWhereUniqueInput: {client_id},
             select: {is_active: true}
         })
 
         if (!client.is_active) throw new UnauthorizedException('Client is not active') 
 
-        const userAuth: UserAuth = {
-            id: user_login,
-            name: user.name,
-            last_name: user.last_name,
-            email: user.email,
-            password: user.password,
-            is_active: user.is_active,
-            user_type: user.user_type,
-            created_at: user.created_at,
-            updated_at: user.updated_at,    
-        }
-
-        const token = this.getJwtToken(userAuth.id, userAuth.user_type);
+        // Genero el token
+        const {user_type} = user;
+        const token = this.getJwtToken(user_id, user_type);
 
         return {
             token, 
-            userAuth
+            user
         };
     }
 
     async loginProfessional(
         loguinInput: ProfessionalLoguinInput
-    ): Promise<AuthResponse> {
+    ): Promise<ProfessionalResponse> {
 
         const {email, phone, password} = loguinInput;
 
@@ -109,81 +98,82 @@ export class AuthService {
 
         if (!professional_login) throw new UnauthorizedException('Credentials are not valid')
             
-        const professional = await this.professionalService.findOneByUnique({
-            professionalWhereUniqueInput: {professional_id: professional_login},
-            select: {...this.properties}
-        }) as unknown as UserAuth
-
         // Verifico que el profesional este activo
+        const professional_id = professional_login;
+        const professional = await this.professionalService.findOneByUnique({
+            professionalWhereUniqueInput: {professional_id},
+        })
+
         if (!professional.is_active) throw new UnauthorizedException('Professional is not active')
             
-        const userAuth: UserAuth = {
-            id: professional_login,
-            ...professional    
-        }
-
         // TODO: desinstalar bcrypt porque de eso se encarga la base de datos
 
-        const token = this.getJwtToken(userAuth.id, userAuth.user_type);
+        // Genero el token
+        const {user_type} = professional;
+        const token = this.getJwtToken(
+            professional_id, user_type
+        );
 
         return {
             token, 
-            userAuth
+            professional
         };
     }
 
-    async validateClient(
-        user_id: UserAuth['id'],
-    ): Promise<UserAuth> {
+    async validateUser(
+        user_id: Prisma.userWhereUniqueInput['user_id'],
+    ): Promise<User> {
 
         // Solo verifico si el usuario esta activo, ya que el cliente se va a verificar en el "loguin"
 
         // Verifico que el usuario este activo
         const user = await this.userService.findOneByUnique({
-            userWhereUniqueInput: {user_id},
-            select: {...this.properties}
-        }) as unknown as UserAuth
+            userWhereUniqueInput: {user_id}
+        })
 
         if (!user.is_active) throw new UnauthorizedException('User is not active')
 
-        // Construyo el UserAuth
-        const userAuth: UserAuth  = {
-            id: user_id,
-            ...user
-        }
-
-        return userAuth
+        return user
     }
 
     async validateProfessional(
-        professional_id: UserAuth['id'],
-    ): Promise<UserAuth> {
+        professional_id: Prisma.professionalWhereUniqueInput['professional_id'],
+    ): Promise<Professional> {
 
         const professional = await this.professionalService.findOneByUnique({
             professionalWhereUniqueInput: {professional_id},
-            select: {...this.properties}
-        }) as unknown as UserAuth
+        })
 
         if (!professional.is_active) throw new UnauthorizedException('User is not active')
 
-        const userAuth: UserAuth = {
-            id: professional_id,
-            ...professional
-        }
-
-        return userAuth
+        return professional
     }
 
-    revalidateToken(
-        userAuth: UserAuth
-    ): AuthResponse {
+    revalidateClientToken(
+        user: User
+    ): UserResponse {
 
-        const {id, user_type} = userAuth;
-        const token = this.getJwtToken(id, user_type);
+        const {user_id, user_type} = user;
+        const token = this.getJwtToken(user_id, user_type);
 
         return {
             token,
-            userAuth
+            user
+        }
+    }
+
+    revalidateProfessionalToken(
+        professional: Professional
+    ): ProfessionalResponse {
+
+        const {professional_id, user_type} = professional;
+        const token = this.getJwtToken(
+            professional_id, user_type
+        );
+
+        return {
+            token,
+            professional
         }
     }
 }

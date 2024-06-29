@@ -44,57 +44,11 @@ export class ClientService {
             throw new BadRequestException(error)
         }
     }
-
-    async findClintByUserId(params: {
-        userWhereUniqueInput: Prisma.userWhereUniqueInput,
-        select?: Prisma.clientSelect
-    }): Promise<Client> {
-
-        const {userWhereUniqueInput, select} = params
-
-        try {
-
-            const user = await this.prisma.user.findUniqueOrThrow({
-                where: userWhereUniqueInput,
-                select: {client_fk: true}
-            })
-
-            const {client_fk: client_id} = user
-
-            return await this.findOneByUnique({
-                clientWhereUniqueInput: {client_id},
-                select
-            })
-
-        } catch (error) {
-            throw new BadRequestException(error)
-        }
-    }
-
-    async updateClintByUserId(params: {
-        where: Prisma.userWhereUniqueInput, 
-        data: Prisma.clientUpdateInput,
-    }): Promise<Client> {
-
-        const {where, data} = params
-        
-        const client = await this.findClintByUserId({
-            userWhereUniqueInput: where,
-            select: {client_id: true}
-        })
-
-        return await this.update({
-            where:{client_id: client.client_id}, 
-            data
-        })
-    }
-
+    
     async update(params: {
         where: Prisma.clientWhereUniqueInput, 
         data: Prisma.clientUpdateInput,
     }): Promise<Client> {
-
-        console.log('params', params)
 
         const {where, data} = params
 

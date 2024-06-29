@@ -4,7 +4,6 @@ import { UpdateUserInput } from './dto/update-user.input';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from './entities/user.entity';
 import { Prisma } from '@prisma/client';
-import { UserAuth } from '../auth/entities/user-auth.entity';
 
 @Injectable()
 export class UserService {
@@ -15,8 +14,21 @@ export class UserService {
         private readonly prisma: PrismaService
     ) {}
 
-    create(createUserInput: CreateUserInput) {
-        return 'This action adds a new user';
+    async create(params: {
+        data: Prisma.userCreateInput
+    }):Promise<User> {
+
+        const { data } = params
+
+        try {
+            
+            return await this.prisma.user.create({
+                data
+            }) as User // le pongo el as para que no me de error ya que choca con el "user_type"
+
+        } catch (error) {
+            throw new BadRequestException(error)
+        }
     }
 
     async findOneByUnique(params: {
@@ -67,21 +79,15 @@ export class UserService {
     }): Promise<User[] | User> {
 
         const { where, select, skip, take } = params
-        const { user_id } = where
+        const { name } = where
 
+        if (name) where.name = {
+            contains: name as string,
+            mode: 'insensitive'
+        }
+        
         try {
 
-            const user = await this.findOneByUnique({
-                userWhereUniqueInput: {
-                    user_id: user_id as UserAuth['id']
-                },select: {
-                    client_fk: true,
-                    is_admin: true
-                }
-            })
-        
-            if (!user.is_admin) throw new UnauthorizedException('You are not authorized to perform this action')
-            
             return await this.prisma.user.findMany({
                 where,
                 select,
@@ -95,11 +101,50 @@ export class UserService {
         }
     }
 
-    update(id: number, updateUserInput: UpdateUserInput) {
-        return `This action updates a #${id} user`;
+    async update(params: {
+        where: Prisma.userWhereUniqueInput, 
+        data: Prisma.userUpdateInput,
+    }): Promise<User> {
+
+        const {where, data} = params
+
+        try {
+
+            return await this.prisma.user.update({
+                where,
+                data
+            }) as User // le pongo el as para que no me de error ya que choca con el "user_type"
+
+        } catch (error) {
+            throw new BadRequestException(error)
+        }
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} user`;
+    async changeAcitveUser(params: {
+        where: Prisma.userWhereUniqueInput
+    }): Promise<User> {
+
+        const {where} = params
+        const {user_id} = where
+
+        try {
+
+            const user = await this.findOneByUnique({
+                userWhereUniqueInput: {user_id},
+                select: {is_admin: true, is_active: true}
+            })
+
+            if (user.is_admin)
+                throw new UnauthorizedException('You cannot change the status of an administrator')
+
+            const is_active = !user.is_active
+            return await this.prisma.user.update({
+                where,
+                data: {is_active}
+            }) as User // le pongo el as para que no me de error ya que choca con el "user_type"
+
+        } catch (error) {
+            throw new BadRequestException(error)
+        }
     }
 }

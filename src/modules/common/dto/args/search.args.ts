@@ -7,7 +7,7 @@ export class SearchArgs {
     @Field(() => String, { nullable: true })
     @IsOptional()
     @IsString()
-    search?: string;
+    search?: string = undefined;
 
     // Aca podriamos agregar mas campos para filtrar la busqueda, como por ejemplo: "excluede", "caseSensitive", "category", etc.
 

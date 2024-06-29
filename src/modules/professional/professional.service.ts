@@ -52,7 +52,10 @@ export class ProfessionalService {
     }
     ): Promise<Professional> {
 
-        const { professionalWhereUniqueInput, select } = params
+        const { 
+            professionalWhereUniqueInput, 
+            select 
+        } = params
 
         try {
             

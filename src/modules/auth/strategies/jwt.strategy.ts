@@ -2,10 +2,11 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { UserAuth } from "src/modules/auth/entities/user-auth.entity";
 import { JwtPayload } from "../interfaces/jwt-payload.interface";
 import { AuthService } from "../auth.service";
 import { user_types } from "../enums/user_types.enum";
+import { Professional } from "src/modules/professional/entities/professional.entity";
+import { User } from "src/modules/user/entities/user.entity";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -21,18 +22,19 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         })
     }
 
-    async validate(payload: JwtPayload): Promise<UserAuth> {
+    async validate(
+        payload: JwtPayload
+    ): Promise<User | Professional> {
+
         const { id , user_type } = payload;
 
-        const user = user_type === user_types.client
-            ? await this.authService.validateClient(id as any)
+        const userAuth = user_type === user_types.client
+            ? await this.authService.validateUser(id)
         : user_type === user_types.professional
             ? await this.authService.validateProfessional(id as any)
         : undefined;
 
-        // if (!user) throw new UnauthorizedException('Unauthorized access')
-
-        return user
+        return userAuth;
     }
  
 }

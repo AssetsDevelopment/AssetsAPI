@@ -4,7 +4,7 @@ import { Client } from './entities/client.entity';
 import { CreateClientInput, UpdateClientInput } from './dto';
 import { Auth, CurrentUser } from '../auth/decorators';
 import { user_types } from '../auth/enums/user_types.enum';
-import { UserAuth } from '../auth/entities/user-auth.entity';
+import { User } from '../user/entities/user.entity';
 
 @Resolver(() => Client)
 export class ClientResolver {
@@ -13,26 +13,27 @@ export class ClientResolver {
         private readonly clientService: ClientService
     ) {}
 
-    @Auth(user_types.client)
-    @Query(() => Client, { name: 'findClient' })
-    async findClient(
-        @CurrentUser('id') user_id: UserAuth['id']
+    @Auth(user_types.clientAdmin)
+    @Query(() => Client, { name: 'Client' })
+    async Client(
+        @CurrentUser('client_fk') client_id: User['client_fk']
     ): Promise<Client> {
-        return this.clientService.findClintByUserId({
-            userWhereUniqueInput: {user_id}
-        });
+
+        return this.clientService.findOneByUnique({
+            clientWhereUniqueInput: {client_id}
+        })
     }
 
-    @Auth(user_types.client)
+    @Auth(user_types.clientAdmin)
     @Mutation(() => Client, { name: 'updateClient' })
     async updateClient(
         @Args('updateClientInput') updateClientInput: UpdateClientInput,
-        @CurrentUser('id') user_id: UserAuth['id']
+        @CurrentUser('client_fk') client_id: User['client_fk']
     ): Promise<Client> {
 
-        return this.clientService.updateClintByUserId({
-            where: {user_id},
+        return this.clientService.update({
+            where: {client_id},
             data: updateClientInput
-        });
+        })
     }
 }

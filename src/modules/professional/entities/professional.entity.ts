@@ -51,7 +51,7 @@ export class Professional {
 
     @Field(() => Boolean)
     is_active: boolean
-
+    
     @Field(() => user_types)
     user_type: user_types
 
