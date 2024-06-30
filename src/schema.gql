@@ -83,9 +83,10 @@ type Query {
 
 type Mutation {
   Login(loginInput: LoguinInput!): AuthResponse!
-  createUser(createUserInput: CreateUserInput!): User!
+  createUser(CreateUserByClientInput: CreateUserByClientInput!): User!
+  updateUserByClient(UpdateUserByClientInput: UpdateUserByClientInput!): User!
+  changeAcitveUser(user_id: ID!, is_active: Boolean!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
-  changeAcitveUser(user_id: ID!): User!
 }
 
 input LoguinInput {
@@ -94,7 +95,7 @@ input LoguinInput {
   password: String!
 }
 
-input CreateUserInput {
+input CreateUserByClientInput {
   name: String!
   last_name: String!
   profile: String!
@@ -104,12 +105,19 @@ input CreateUserInput {
   gender: gender_options!
 }
 
+input UpdateUserByClientInput {
+  name: String
+  last_name: String
+  profile: String
+  password: String
+  gender: gender_options
+  user_id: ID!
+}
+
 input UpdateUserInput {
   name: String
   last_name: String
   profile: String
-  phone: String
-  email: String
   password: String
   gender: gender_options
 }

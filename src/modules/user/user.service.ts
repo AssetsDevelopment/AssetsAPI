@@ -3,7 +3,7 @@ import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from './entities/user.entity';
-import { Prisma } from '@prisma/client';
+import { Prisma, user_types } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -14,11 +14,37 @@ export class UserService {
         private readonly prisma: PrismaService
     ) {}
 
-    async create(params: {
+    // async create(params: {
+    //     data: Prisma.userCreateInput
+    // }):Promise<User> {
+
+    //     const { data } = params
+
+    //     try {
+            
+    //         return await this.prisma.user.create({
+    //             data
+    //         }) as User // le pongo el as para que no me de error ya que choca con el "user_type"
+
+    //     } catch (error) {
+    //         throw new BadRequestException(error)
+    //     }
+    // }
+
+    async createUserClient(params: {
+        client_id: Prisma.clientWhereUniqueInput['client_id'],
         data: Prisma.userCreateInput
     }):Promise<User> {
 
-        const { data } = params
+        const { client_id, data } = params
+
+        data.client = {
+            create: {
+                client_fk: client_id
+            }
+        }
+
+        data.user_type = [user_types.client]
 
         try {
             
@@ -110,6 +136,8 @@ export class UserService {
 
         const {where, data} = params
 
+        console.log('where', where)
+
         try {
 
             return await this.prisma.user.update({
@@ -124,29 +152,29 @@ export class UserService {
 
     // CORREGIDO
     async changeAcitveUser(params: {
-        where: Prisma.userWhereUniqueInput,
+        userChange: Prisma. userWhereUniqueInput['user_id'],
+        userAdmin: Prisma.clientWhereUniqueInput['client_fk'],
+        is_active: Prisma.userUpdateInput['is_active']
     }): Promise<User> {
 
-        const {where} = params
-        const {user_id: client_id} = where
+        const {userChange, userAdmin, is_active} = params
 
         try {
 
+            // Verifico que el usuario no sea admin y que perteza al cliente
+            const client_id = userChange
+            const client_fk = userAdmin
             const client = await this.prisma.client.findFirstOrThrow({
-                where: {client_id},
-                select: {is_admin: true, user: {
-                    select: {
-                        is_active: true
-                    }
-                }}
+                where: {client_id, client_fk},
+                select: {is_admin: true}
             })
             
             if (client.is_admin)
                 throw new UnauthorizedException('You cannot change the status of an administrator')
 
-            const is_active = !client.user.is_active
+            const user_id = userChange
             return await this.prisma.user.update({
-                where,
+                where: {user_id},
                 data: {is_active}
             }) as User // le pongo el as para que no me de error ya que choca con el "user_type"
 

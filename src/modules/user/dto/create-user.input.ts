@@ -1,5 +1,6 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { IsIn, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsArray, IsIn, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { user_types } from 'src/modules/auth/enums/user_types.enum';
 import { gender_options } from 'src/modules/common/enums';
 
 @InputType()
@@ -42,6 +43,5 @@ export class CreateUserInput {
 
     @Field(() => gender_options)
     @IsString()
-    @IsIn([gender_options])
     gender: gender_options
 }

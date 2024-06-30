@@ -5,6 +5,7 @@ import { CreateClientInput, UpdateClientInput } from './dto';
 import { Auth, CurrentUser } from '../auth/decorators';
 import { user_types } from '../auth/enums/user_types.enum';
 import { User } from '../user/entities/user.entity';
+import { UserService } from '../user/user.service';
 
 @Resolver(() => Client)
 export class ClientResolver {
