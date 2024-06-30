@@ -160,8 +160,23 @@ export class ProfessionalService {
         }
     }
 
-    update(id: number, updateProfessionalInput: UpdateProfessionalInput) {
-        return `This action updates a #${id} professional`;
+    async update(params: {
+        where: Prisma.professionalWhereUniqueInput, 
+        data: Prisma.professionalUpdateInput,
+    }): Promise<Professional> {
+
+        const {where, data} = params
+
+        try {
+
+            return await this.prisma.professional.update({
+                where,
+                data
+            }) as Professional // le pongo el as para que no me de error ya que choca con el "fiscal_status"
+
+        } catch (error) {
+            throw new BadRequestException(error)
+        }
     }
 
     remove(id: number) {

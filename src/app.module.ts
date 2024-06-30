@@ -9,7 +9,8 @@ import {
     UserModule,
     ClientModule,
     ProfessionalModule,
-    CommonModule
+    CommonModule,
+    ClientHasProfessionalModule
 } from './modules';
 
 @Module({
@@ -28,6 +29,7 @@ import {
         ClientModule,
         ProfessionalModule,
         CommonModule,
+        ClientHasProfessionalModule,
     ],
     controllers: [],
     providers: [],

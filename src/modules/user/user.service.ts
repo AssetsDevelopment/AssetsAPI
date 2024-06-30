@@ -129,14 +129,13 @@ export class UserService {
         }
     }
 
+    // CORREGIDO
     async update(params: {
         where: Prisma.userWhereUniqueInput, 
         data: Prisma.userUpdateInput,
     }): Promise<User> {
 
         const {where, data} = params
-
-        console.log('where', where)
 
         try {
 

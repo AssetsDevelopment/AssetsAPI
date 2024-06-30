@@ -29,24 +29,16 @@ export class ProfessionalResolver {
         });
     }
 
-    // TODO: @Auth(user_types.clientAdmin)
-    // @Query(() => [Professional], { name: 'findProfessional' })
-    // async findProfessional(
-    //     @CurrentUser('client_fk') client_fk: User['client_fk'],
-    //     @Args() paginationArgs: PaginationArgs,
-    //     @Args() searchArgs: SearchArgs
-    // ): Promise<Professional[] | Professional> {
-    //     const { search: name } = searchArgs;
+    @Auth(user_types.professional)
+    @Mutation(() => Professional, { name: 'updateProfessional' })
+    async updateUser(
+        @Args('updateProfessionalInput') updateProfessionalInput: UpdateProfessionalInput,
+        @CurrentUser('user_id') professional_id: Professional['professional_id']
+    ): Promise<Professional> {
 
-    // }
-
-//   @Mutation(() => Professional)
-//   updateProfessional(@Args('updateProfessionalInput') updateProfessionalInput: UpdateProfessionalInput) {
-//     return this.professionalService.update(updateProfessionalInput.id, updateProfessionalInput);
-//   }
-
-//   @Mutation(() => Professional)
-//   removeProfessional(@Args('id', { type: () => Int }) id: number) {
-//     return this.professionalService.remove(id);
-//   }
+        return this.professionalService.update({
+            where: { professional_id },
+            data: updateProfessionalInput
+        });
+    }
 }

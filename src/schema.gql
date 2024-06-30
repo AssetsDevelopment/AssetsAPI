@@ -87,6 +87,7 @@ type Mutation {
   updateUserByClient(UpdateUserByClientInput: UpdateUserByClientInput!): User!
   changeAcitveUser(user_id: ID!, is_active: Boolean!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
+  updateProfessional(updateProfessionalInput: UpdateProfessionalInput!): Professional!
 }
 
 input LoguinInput {
@@ -120,4 +121,14 @@ input UpdateUserInput {
   profile: String
   password: String
   gender: gender_options
+}
+
+input UpdateProfessionalInput {
+  cuit: String
+  fiscal_status: String
+  birthdate: String
+  bank: String
+  bank_account: String
+  cbu: String
+  alias: String
 }
