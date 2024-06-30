@@ -31,6 +31,7 @@ export class UserService {
         }
     }
 
+    // CORREGIDO
     async findOneByUnique(params: {
         userWhereUniqueInput: Prisma.userWhereUniqueInput,
         select?: Prisma.userSelect
@@ -71,6 +72,7 @@ export class UserService {
         }
     }
 
+    // CORREGIDO
     async findAll(params: {
         where: Prisma.userWhereInput,
         select?: Prisma.userSelect,
@@ -79,10 +81,10 @@ export class UserService {
     }): Promise<User[] | User> {
 
         const { where, select, skip, take } = params
-        const { name } = where
+        const { profile } = where
 
-        if (name) where.name = {
-            contains: name as string,
+        if (profile) where.profile = {
+            contains: profile as string,
             mode: 'insensitive'
         }
         
@@ -120,24 +122,29 @@ export class UserService {
         }
     }
 
+    // CORREGIDO
     async changeAcitveUser(params: {
-        where: Prisma.userWhereUniqueInput
+        where: Prisma.userWhereUniqueInput,
     }): Promise<User> {
 
         const {where} = params
-        const {user_id} = where
+        const {user_id: client_id} = where
 
         try {
 
-            const user = await this.findOneByUnique({
-                userWhereUniqueInput: {user_id},
-                select: {is_admin: true, is_active: true}
+            const client = await this.prisma.client.findFirstOrThrow({
+                where: {client_id},
+                select: {is_admin: true, user: {
+                    select: {
+                        is_active: true
+                    }
+                }}
             })
-
-            if (user.is_admin)
+            
+            if (client.is_admin)
                 throw new UnauthorizedException('You cannot change the status of an administrator')
 
-            const is_active = !user.is_active
+            const is_active = !client.user.is_active
             return await this.prisma.user.update({
                 where,
                 data: {is_active}

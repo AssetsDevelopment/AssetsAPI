@@ -5,7 +5,6 @@ import { Observable } from 'rxjs';
 import { META_USER_TYPES } from '../decorators';
 import { user_types } from '../enums/user_types.enum';
 import { User } from 'src/modules/user/entities/user.entity';
-import { Professional } from 'src/modules/professional/entities/professional.entity';
 
 @Injectable()
 export class UserRoleGuard implements CanActivate {
@@ -24,33 +23,23 @@ export class UserRoleGuard implements CanActivate {
         
         if (!user_types_mt || user_types_mt.length === 0) return true;
 
-        const user: User = ctx.getContext().req.user.user_type === user_types.client ? ctx.getContext().req.user : undefined; 
+        const user: User = ctx.getContext().req.user; 
         
-        const professional: Professional = ctx.getContext().req.user.user_type === user_types.professional ? ctx.getContext().req.user : undefined; 
+        if (!user) throw new BadRequestException('User not found');
 
-        const userAuth = user || professional;
+        if (user_types_mt.includes(user.user_type)) return true;
 
-        if (!userAuth) throw new BadRequestException('User not found');
-
-        if (user_types_mt.includes(userAuth.user_type)) return true;
-
-        if (
-            userAuth.user_type === user_types.client 
-         && ('is_admin' in userAuth) 
-         && userAuth.is_admin
-        ) return true;
-
-        if (
-            user_types_mt.includes(user_types.clientAdmin) 
-         && userAuth.user_type === user_types.client
-         && ('is_admin' in userAuth) 
-         && !userAuth.is_admin
-        ) throw new ForbiddenException(
-            `User ${userAuth.name} ${userAuth.last_name} neded a user type: ${user_types_mt}`
-        );
-
+        // TODO: Fijarse si es viable enviar el "is_admin" por la metadata
+        // if (user_types_mt.includes(user_types.clientAdmin)){
+        //     if (
+        //         userAuth.user_type === user_types.client 
+        //         && ('is_admin' in userAuth) 
+        //         && userAuth.is_admin
+        //     ) {return true;} else throw new ForbiddenException(`User ${userAuth.name} ${userAuth.last_name} neded a user type: ${user_types_mt}`);
+        // }
+             
         throw new ForbiddenException(
-            `User ${userAuth.name} ${userAuth.last_name} need a user type: ${user_types_mt}`
+            `User ${user.profile} need a user type: ${user_types_mt}`
         );
     }
 }

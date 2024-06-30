@@ -2,7 +2,7 @@ import { Field, InputType } from "@nestjs/graphql";
 import { gender_options } from "src/modules/common/enums";
 
 @InputType()
-export class ProfessionalSignupInput {
+export class SignupInput {
 
     @Field( () => String )
     name: string;

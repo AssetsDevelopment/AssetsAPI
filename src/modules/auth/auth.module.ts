@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UserAuthResolver } from './user.resolver';
-import { ProfessionalAuthResolver } from './professional.resolver';
+import { AuthResolver } from './auth.resolver';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { PassportModule } from '@nestjs/passport';
@@ -30,7 +29,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
             } 
         })
     ],
-    providers: [UserAuthResolver, ProfessionalAuthResolver, AuthService, JwtStrategy],
+    providers: [AuthResolver, AuthService, JwtStrategy],
     exports: [JwtStrategy, PassportModule, JwtModule]
     // TODO: no exporto el AuthService porque puede generar una dependencia circular
 })

@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { ClientService } from './client.service';
 import { Client } from './entities/client.entity';
 import { CreateClientInput, UpdateClientInput } from './dto';
@@ -13,10 +13,10 @@ export class ClientResolver {
         private readonly clientService: ClientService
     ) {}
 
-    @Auth(user_types.clientAdmin)
+    // TODO: @Auth(user_types.clientAdmin)
     @Query(() => Client, { name: 'Client' })
     async Client(
-        @CurrentUser('client_fk') client_id: User['client_fk']
+        @CurrentUser('user_id') client_id: User['user_id']
     ): Promise<Client> {
 
         return this.clientService.findOneByUnique({
@@ -24,11 +24,11 @@ export class ClientResolver {
         })
     }
 
-    @Auth(user_types.clientAdmin)
+    // TODO: @Auth(user_types.clientAdmin)
     @Mutation(() => Client, { name: 'updateClient' })
     async updateClient(
         @Args('updateClientInput') updateClientInput: UpdateClientInput,
-        @CurrentUser('client_fk') client_id: User['client_fk']
+        @CurrentUser('user_id') client_id: User['user_id']
     ): Promise<Client> {
 
         return this.clientService.update({

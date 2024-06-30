@@ -91,7 +91,7 @@ type Query {
   findUsers(offset: Int = 0, limit: Int = 10, search: String): [User!]!
   findUser(user_id: ID!): User!
   User: User!
-  professional(id: Int!): Professional!
+  Professional: Professional!
 }
 
 type Mutation {

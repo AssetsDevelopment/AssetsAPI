@@ -1,7 +1,7 @@
 import { ObjectType, Field, Int, ID } from '@nestjs/graphql';
-import { user_types } from 'src/modules/auth/enums/user_types.enum';
 import { fiscal_status, gender_options } from 'src/modules/common/enums';
 
+// CORREGIDO
 @ObjectType()
 export class Professional {
 
@@ -9,13 +9,13 @@ export class Professional {
     professional_id: number
 
     @Field(() => String)
-    name: string
+    name: string;
 
     @Field(() => String)
-    last_name: string
+    last_name: string;
 
     @Field(() => gender_options)
-    gender: gender_options
+    gender: gender_options;
 
     @Field(() => String)
     cuit: string
@@ -23,14 +23,6 @@ export class Professional {
     @Field(() => fiscal_status)
     fiscal_status: fiscal_status
     
-    @Field(() => String)
-    phone: string
-    
-    @Field(() => String)
-    email: string
-
-    password: string
-
     @Field(() => Date)
     birthdate: Date
 
@@ -45,15 +37,6 @@ export class Professional {
     
     @Field(() => String)
     alias: string
-
-    @Field(() => String)
-    note: string
-
-    @Field(() => Boolean)
-    is_active: boolean
-    
-    @Field(() => user_types)
-    user_type: user_types
 
     @Field(() => Date)
     created_at: Date

@@ -9,55 +9,60 @@ import { ParseIntPipe } from '@nestjs/common';
 
 @Resolver(() => User)
 export class UserResolver {
-  constructor(private readonly userService: UserService) {}
 
-    @Auth(user_types.clientAdmin)
+    constructor(private readonly userService: UserService) {}
+
+    // TODO: @Auth(user_types.clientAdmin)
     @Mutation(() => User, { name: 'createUser' })
     async createUser(
-        @CurrentUser('client_fk') client_id: User['client_fk'],
+        @CurrentUser('user_id') client_id: User['user_id'],
         @Args('createUserInput') createUserInput: CreateUserInput
     ): Promise<User> {
         
+        // TODO: Necesito recibir por el Input datos para la tabla user y datos para la tabla client, corregir createUserInput
         return this.userService.create({
             data: {
-                ...createUserInput,
                 client: {
-                    connect: {
-                        client_id
+                    create: {
+                        
                     }
                 }
             }
         });
     }
 
-    @Auth(user_types.clientAdmin)
+    // TODO: @Auth(user_types.clientAdmin)
     @Query(() => [User], { name: 'findUsers' })
     async findUsers(
-        @CurrentUser('client_fk') client_fk: User['client_fk'],
+        @CurrentUser('user_id') client_fk: User['user_id'],
         @Args() paginationArgs: PaginationArgs,
         @Args() searchArgs: SearchArgs
-    ) {
-        const { search: name } = searchArgs;
+    ): Promise<User[] | User> {
+        const { search: profile } = searchArgs;
 
         return this.userService.findAll({
-            where: {client_fk, name, 
-                is_admin: false 
+            where: {
+                client: {
+                    client_fk,
+                    is_admin: false
+                }, 
+                profile, 
             },
             skip: paginationArgs.offset,
             take: paginationArgs.limit,
         });
     }
 
-    @Auth(user_types.clientAdmin)
+    // TODO: @Auth(user_types.clientAdmin)
     @Query(() => User, { name: 'findUser' })
     async findUser(
         @Args('user_id', { type: () => ID }, ParseIntPipe) user_id: User['user_id'],
-        @CurrentUser('client_fk') client_fk: User['client_fk'],
+        @CurrentUser('user_id') client_fk: User['user_id'],
     ): Promise<User> {
         return this.userService.findOneByUnique({
             userWhereUniqueInput: {
                 user_id,
-                client_fk
+                client: {client_fk}
             }
         });
     }
@@ -65,19 +70,15 @@ export class UserResolver {
     @Auth(user_types.client)
     @Query(() => User, { name: 'User' })
     async User(
-        @CurrentUser() user: User,
+        @CurrentUser('user_id') user_id: User['user_id'],
     ): Promise<User> {
 
-        const { user_id, client_fk } = user;
-
         return this.userService.findOneByUnique({
-            userWhereUniqueInput: {
-                user_id,
-                client_fk
-            }
+            userWhereUniqueInput: {user_id}
         });
     }
 
+    // TODO: Corregir updateUserInput
     @Auth(user_types.client)
     @Mutation(() => User, { name: 'updateUser' })
     async updateUser(
@@ -91,17 +92,15 @@ export class UserResolver {
         })
     }
 
-    @Auth(user_types.clientAdmin)
+    // TODO: @Auth(user_types.clientAdmin)
     @Mutation(() => User, { name: 'changeAcitveUser' })
     async changeAcitveUser(
         @Args('user_id', { type: () => ID }, ParseIntPipe) user_id: User['user_id'],
         @CurrentUser() user: User
     ): Promise<User> {
 
-        const { client_fk, is_active, is_admin } = user;
-
         return this.userService.changeAcitveUser({
-            where: {user_id, client_fk}
+            where: {user_id}
         })
     }
 }

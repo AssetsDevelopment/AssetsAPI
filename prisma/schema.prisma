@@ -12,7 +12,6 @@ model claim {
   claim_id      Int             @id @default(autoincrement())
   order_fk      Int
   client_fk     Int
-  user_fk       Int
   cause         String
   urgency       urgency_options
   reported_date DateTime        @db.Timestamp(6)
@@ -21,33 +20,38 @@ model claim {
   updated_at    DateTime        @default(now()) @db.Timestamp(6)
   client        client          @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
   order         order           @relation(fields: [order_fk], references: [order_id], onDelete: NoAction, onUpdate: NoAction)
-  user          user            @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model client {
-  client_id             Int                     @id @default(autoincrement())
-  name                  String                  @db.VarChar(100)
-  last_name             String                  @db.VarChar(100)
-  is_active             Boolean                 @default(true)
-  created_at            DateTime                @default(now()) @db.Timestamp(6)
-  updated_at            DateTime                @default(now()) @db.Timestamp(6)
-  claim                 claim[]
-  company               company[]
-  company_has_treatment company_has_treatment[]
-  patient               patient[]
-  permission            permission[]
-  treatment             treatment[]
-  user                  user[]
-  work_invitation       work_invitation[]
+  client_id               Int                       @id @default(autoincrement())
+  client_fk               Int?
+  name                    String                    @db.VarChar(100)
+  last_name               String                    @db.VarChar(100)
+  gender                  gender_options
+  is_admin                Boolean                   @default(false)
+  created_at              DateTime                  @default(now()) @db.Timestamp(6)
+  updated_at              DateTime                  @default(now()) @db.Timestamp(6)
+  claim                   claim[]
+  client                  client?                   @relation("clientToclient", fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
+  other_client            client[]                  @relation("clientToclient")
+  user                    user                      @relation(fields: [client_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_client_user")
+  client_has_professional client_has_professional[]
+  company                 company[]
+  company_has_treatment   company_has_treatment[]
+  patient                 patient[]
+  treatment               treatment[]
 }
 
 model client_has_professional {
   client_fk                  Int
   professional_fk            Int
+  sender                     user_types
+  is_accept                  Boolean                      @default(false)
   is_active                  Boolean                      @default(true)
   created_at                 DateTime                     @default(now()) @db.Timestamp(6)
   updated_at                 DateTime                     @default(now()) @db.Timestamp(6)
-  work_invitation            work_invitation              @relation(fields: [client_fk, professional_fk], references: [client_fk, professional_fk], onDelete: NoAction, onUpdate: NoAction, map: "client_has_professional_fkey")
+  client                     client                       @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
+  professional               professional                 @relation(fields: [professional_fk], references: [professional_id], onDelete: NoAction, onUpdate: NoAction)
   order                      order[]
   treatment_has_professional treatment_has_professional[]
 
@@ -57,7 +61,6 @@ model client_has_professional {
 model company {
   company_id                 Int                          @id @default(autoincrement())
   client_fk                  Int
-  user_fk                    Int
   name                       String                       @db.VarChar(100)
   cuit                       String?                      @db.VarChar(20)
   note                       String?
@@ -65,7 +68,6 @@ model company {
   created_at                 DateTime                     @default(now()) @db.Timestamp(6)
   updated_at                 DateTime                     @default(now()) @db.Timestamp(6)
   client                     client                       @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
-  user                       user                         @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   company_has_treatment      company_has_treatment[]
   patient                    patient[]
   treatment_has_professional treatment_has_professional[]
@@ -74,7 +76,6 @@ model company {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model company_has_treatment {
   client_fk    Int
-  user_fk      Int
   company_fk   Int
   treatment_fk Int
   value        Decimal   @db.Decimal(7, 2)
@@ -83,9 +84,8 @@ model company_has_treatment {
   client       client    @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
   company      company   @relation(fields: [company_fk], references: [company_id], onDelete: NoAction, onUpdate: NoAction)
   treatment    treatment @relation(fields: [treatment_fk], references: [treatment_id], onDelete: NoAction, onUpdate: NoAction)
-  user         user      @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([company_fk, treatment_fk])
+  @@id([client_fk, company_fk, treatment_fk])
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -93,10 +93,9 @@ model order {
   order_id                Int                      @id @default(autoincrement())
   order_fk                Int?
   client_fk               Int
-  user_fk                 Int
+  professional_fk         Int?
   patient_fk              Int
   treatment_fk            Int
-  professional_fk         Int?
   start_date              DateTime                 @db.Timestamp(6)
   finish_date             DateTime                 @db.Timestamp(6)
   has_medical_order       Boolean                  @default(false)
@@ -117,16 +116,15 @@ model order {
   patient                 patient                  @relation(fields: [patient_fk], references: [patient_id], onDelete: NoAction, onUpdate: NoAction)
   client_has_professional client_has_professional? @relation(fields: [client_fk, professional_fk], references: [client_fk, professional_fk], onDelete: NoAction, onUpdate: NoAction, map: "order_professional_fkey")
   treatment               treatment                @relation(fields: [treatment_fk], references: [treatment_id], onDelete: NoAction, onUpdate: NoAction)
-  user                    user                     @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model patient {
   patient_id          Int            @id @default(autoincrement())
   client_fk           Int
-  user_fk             Int
   company_fk          Int
   name                String         @db.VarChar(100)
+  last_name           String         @db.VarChar(100)
   healthcare_provider String?        @db.VarChar(100)
   gender              gender_options
   age                 Int?           @db.SmallInt
@@ -138,60 +136,31 @@ model patient {
   order               order[]
   client              client         @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
   company             company        @relation(fields: [company_fk], references: [company_id], onDelete: NoAction, onUpdate: NoAction)
-  user                user           @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model permission {
-  user_fk    Int
-  client_fk  Int
-  screen_fk  Int
-  created_at DateTime @default(now()) @db.Timestamp(6)
-  updated_at DateTime @default(now()) @db.Timestamp(6)
-  client     client   @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
-  screen     screen   @relation(fields: [screen_fk], references: [screen_id], onDelete: NoAction, onUpdate: NoAction)
-  user       user     @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([user_fk, screen_fk])
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
 model professional {
-  professional_id Int               @id @default(autoincrement())
-  name            String            @db.VarChar(100)
-  last_name       String            @db.VarChar(100)
-  gender          gender_options
-  cuit            String?           @db.VarChar(20)
-  fiscal_status   fiscal_status?
-  phone           String?           @db.VarChar(30)
-  email           String?           @db.VarChar(255)
-  password        String            @db.VarChar(255)
-  birthdate       DateTime?         @db.Date
-  bank            String?           @db.VarChar(255)
-  bank_account    String?           @db.VarChar(50)
-  cbu             String?           @db.VarChar(23)
-  alias           String?           @db.VarChar(50)
-  note            String?
-  is_active       Boolean           @default(true)
-  user_type       String            @default("professional") @db.Char(12)
-  created_at      DateTime          @default(now()) @db.Timestamp(6)
-  updated_at      DateTime          @default(now()) @db.Timestamp(6)
-  work_invitation work_invitation[]
-}
-
-model screen {
-  screen_id  Int          @id @default(autoincrement())
-  name       String       @db.VarChar(100)
-  is_active  Boolean      @default(true)
-  created_at DateTime     @default(now()) @db.Timestamp(6)
-  updated_at DateTime     @default(now()) @db.Timestamp(6)
-  permission permission[]
+  professional_id         Int                       @id @default(autoincrement())
+  name                    String                    @db.VarChar(100)
+  last_name               String                    @db.VarChar(100)
+  gender                  gender_options
+  cuit                    String?                   @db.VarChar(20)
+  fiscal_status           fiscal_status?
+  birthdate               DateTime?                 @db.Date
+  bank                    String?                   @db.VarChar(255)
+  bank_account            String?                   @db.VarChar(50)
+  cbu                     String?                   @db.VarChar(23)
+  alias                   String?                   @db.VarChar(50)
+  created_at              DateTime                  @default(now()) @db.Timestamp(6)
+  updated_at              DateTime                  @default(now()) @db.Timestamp(6)
+  client_has_professional client_has_professional[]
+  user                    user                      @relation(fields: [professional_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_professional_user")
 }
 
 model treatment {
   treatment_id               Int                          @id @default(autoincrement())
   client_fk                  Int
-  user_fk                    Int
   name                       String                       @db.VarChar(100)
   abbreviation               String                       @db.VarChar(10)
   description                String?
@@ -201,63 +170,38 @@ model treatment {
   company_has_treatment      company_has_treatment[]
   order                      order[]
   client                     client                       @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
-  user                       user                         @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   treatment_has_professional treatment_has_professional[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model treatment_has_professional {
   client_fk               Int
-  user_fk                 Int
+  professional_fk         Int
   company_fk              Int
   treatment_fk            Int
-  professional_fk         Int
   value                   Decimal                 @db.Decimal(7, 2)
   created_at              DateTime                @default(now()) @db.Timestamp(6)
   updated_at              DateTime                @default(now()) @db.Timestamp(6)
   company                 company                 @relation(fields: [company_fk], references: [company_id], onDelete: NoAction, onUpdate: NoAction)
   client_has_professional client_has_professional @relation(fields: [client_fk, professional_fk], references: [client_fk, professional_fk], onDelete: NoAction, onUpdate: NoAction, map: "treatment_has_professional_professional_fkey")
   treatment               treatment               @relation(fields: [treatment_fk], references: [treatment_id], onDelete: NoAction, onUpdate: NoAction)
-  user                    user                    @relation(fields: [user_fk], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([company_fk, treatment_fk, professional_fk])
+  @@id([client_fk, professional_fk, company_fk, treatment_fk])
 }
 
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
 model user {
-  user_id                    Int                          @id @default(autoincrement())
-  client_fk                  Int
-  name                       String                       @db.VarChar(100)
-  last_name                  String                       @db.VarChar(100)
-  email                      String                       @unique @db.VarChar(255)
-  password                   String                       @db.VarChar(255)
-  is_admin                   Boolean                      @default(false)
-  is_active                  Boolean                      @default(true)
-  user_type                  String                       @default("client") @db.Char(6)
-  created_at                 DateTime                     @default(now()) @db.Timestamp(6)
-  updated_at                 DateTime                     @default(now()) @db.Timestamp(6)
-  claim                      claim[]
-  company                    company[]
-  company_has_treatment      company_has_treatment[]
-  order                      order[]
-  patient                    patient[]
-  permission                 permission[]
-  treatment                  treatment[]
-  treatment_has_professional treatment_has_professional[]
-  client                     client                       @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model work_invitation {
-  client_fk               Int
-  professional_fk         Int
-  sender                  profile_options
-  is_accept               Boolean                  @default(false)
-  created_at              DateTime                 @default(now()) @db.Timestamp(6)
-  updated_at              DateTime                 @default(now()) @db.Timestamp(6)
-  client_has_professional client_has_professional?
-  client                  client                   @relation(fields: [client_fk], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
-  professional            professional             @relation(fields: [professional_fk], references: [professional_id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([client_fk, professional_fk])
+  user_id      Int           @id @default(autoincrement())
+  profile      String        @unique @db.VarChar(100)
+  phone        String?       @db.VarChar(30)
+  email        String?       @db.VarChar(255)
+  password     String        @db.VarChar(255)
+  is_active    Boolean       @default(true)
+  user_type    String        @db.VarChar(12)
+  created_at   DateTime      @default(now()) @db.Timestamp(6)
+  updated_at   DateTime      @default(now()) @db.Timestamp(6)
+  client       client?
+  professional professional?
 }
 
 enum fiscal_status {
@@ -272,13 +216,13 @@ enum gender_options {
   F
 }
 
-enum profile_options {
-  coordinador
-  profesional
+enum urgency_options {
+  high
+  medium
+  low
 }
 
-enum urgency_options {
-  baja
-  media
-  alta
+enum user_types {
+  professional
+  client
 }

@@ -2,7 +2,7 @@ import { Field, InputType } from "@nestjs/graphql";
 import { IsOptional, MaxLength, MinLength } from "class-validator";
 
 @InputType()
-export class ProfessionalLoguinInput {
+export class LoguinInput {
 
     @Field( () => String, {nullable: true} )
     // TODO: Validar con regex

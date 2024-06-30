@@ -25,6 +25,7 @@ export class ClientService {
         return `This action returns a #${id} client`;
     }
 
+    // CORREGIDO
     async findOneByUnique(params: {
         clientWhereUniqueInput: Prisma.clientWhereUniqueInput,
         select?: Prisma.clientSelect
@@ -37,7 +38,7 @@ export class ClientService {
             return await this.prisma.client.findUniqueOrThrow({
                 where: clientWhereUniqueInput,
                 select
-            })
+            }) as Client
 
         } catch (error) {
             // TODO: manage error
@@ -45,6 +46,7 @@ export class ClientService {
         }
     }
     
+    // CORREGIDO
     async update(params: {
         where: Prisma.clientWhereUniqueInput, 
         data: Prisma.clientUpdateInput,
@@ -57,7 +59,7 @@ export class ClientService {
             return await this.prisma.client.update({
                 where,
                 data
-            })
+            }) as Client
 
         } catch (error) {
             throw new BadRequestException(error)

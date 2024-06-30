@@ -14,13 +14,104 @@ export class ProfessionalService {
         private readonly prisma: PrismaService
     ) {}
 
-    create(createProfessionalInput: CreateProfessionalInput) {
-        return 'This action adds a new professional';
+    async create(params: {
+        data: Prisma.professionalCreateInput
+    }):Promise<Professional> {
+
+        const { data } = params
+
+        try {
+            
+            return await this.prisma.professional.create({
+                data
+            }) as Professional // le pongo el as para que no me de error ya que choca con el "gender_options"
+
+        } catch (error) {
+            throw new BadRequestException(error)
+        }
     }
 
-    findAll() {
-        return `This action returns all professional`;
+    async findAll(params: {
+        where: Prisma.professionalWhereInput,
+        select?: Prisma.professionalSelect,
+        skip?: Prisma.professionalFindManyArgs['skip'],
+        take?: Prisma.professionalFindManyArgs['take'],
+    }): Promise<Professional[] | Professional> {
+
+        const { where, select, skip, take } = params
+        const { name } = where
+
+        if (name) where.name = {
+            contains: name as string,
+            mode: 'insensitive'
+        }
+        
+        try {
+
+            return await this.prisma.professional.findMany({
+                where,
+                select,
+                skip,
+                take
+            }) as Professional[] // le pongo el as para que no me de error ya que choca con el "gender_options"
+
+        } catch (error) {
+            // TODO: manage error
+            throw new BadRequestException(error)
+        }
     }
+
+    // async findAllByClient(params: {
+    //     clientWhereUniqueInput: Prisma.clientWhereUniqueInput, 
+    //     where: Prisma.professionalWhereInput,
+    //     select?: Prisma.professionalSelect,
+    //     skip?: Prisma.professionalFindManyArgs['skip'],
+    //     take?: Prisma.professionalFindManyArgs['take'],
+    // }): Promise<Professional[] | Professional> {
+
+    //     const { 
+    //         clientWhereUniqueInput,
+    //         where,
+    //         select,
+    //         skip, 
+    //         take 
+    //     } = params
+    //     const { name } = where
+
+    //     if (name) where.name = {
+    //         contains: name as string,
+    //         mode: 'insensitive'
+    //     }
+        
+    //     try {
+
+    //         await this.prisma.client_has_professional.findMany({
+    //             where: {
+    //                 client_fk,
+    //                 professional_fk
+    //             }
+    //         })
+
+
+
+    //         return await this.prisma.professional.findMany({
+    //             where: {
+    //                 work_invitation: {
+    //                     some: {
+                            
+    //                     }
+    //                 }
+    //             },
+    //             select,
+    //             skip,
+    //             take
+    //         }) as Professional[] // le pongo el as para que no me de error ya que choca con el "gender_options"
+
+    //     } catch (error) {
+    //         // TODO: manage error
+    //         throw new BadRequestException(error)
+    //     }
+    // }
 
     findOne(id: number) {
         return `This action returns a #${id} professional`;
@@ -45,12 +136,11 @@ export class ProfessionalService {
             throw new BadRequestException(error)
         }
     }
-
+    // CORREGIDO
     async findOneByUnique(params: {
         professionalWhereUniqueInput: Prisma.professionalWhereUniqueInput,
         select?: Prisma.professionalSelect
-    }
-    ): Promise<Professional> {
+    }): Promise<Professional> {
 
         const { 
             professionalWhereUniqueInput, 
