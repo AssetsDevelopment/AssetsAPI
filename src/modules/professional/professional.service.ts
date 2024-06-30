@@ -24,41 +24,45 @@ export class ProfessionalService {
             
             return await this.prisma.professional.create({
                 data
-            }) as Professional // le pongo el as para que no me de error ya que choca con el "gender_options"
+            }) as Professional // le pongo el as para que no me de error ya que choca con el "fiscal_status"
 
         } catch (error) {
             throw new BadRequestException(error)
         }
     }
 
-    async findAll(params: {
-        where: Prisma.professionalWhereInput,
-        select?: Prisma.professionalSelect,
-        skip?: Prisma.professionalFindManyArgs['skip'],
-        take?: Prisma.professionalFindManyArgs['take'],
-    }): Promise<Professional[] | Professional> {
+    // async findAll(params: {
+    //     where: Prisma.professionalWhereInput,
+    //     select?: Prisma.professionalSelect,
+    //     skip?: Prisma.professionalFindManyArgs['skip'],
+    //     take?: Prisma.professionalFindManyArgs['take'],
+    // }): Promise<Professional[] | Professional> {
 
-        const { where, select, skip, take } = params
-        const { name } = where
+    //     const { where, select, skip, take } = params
+    //     const { name } = where
 
-        if (name) where.name = {
-            contains: name as string,
-            mode: 'insensitive'
-        }
+    //     if (name) where.name = {
+    //         contains: name as string,
+    //         mode: 'insensitive'
+    //     }
         
-        try {
+    //     try {
 
-            return await this.prisma.professional.findMany({
-                where,
-                select,
-                skip,
-                take
-            }) as Professional[] // le pongo el as para que no me de error ya que choca con el "gender_options"
+    //         return await this.prisma.professional.findMany({
+    //             where,
+    //             select,
+    //             skip,
+    //             take
+    //         }) as Professional[] // le pongo el as para que no me de error ya que choca con el "fiscal_status"
 
-        } catch (error) {
-            // TODO: manage error
-            throw new BadRequestException(error)
-        }
+    //     } catch (error) {
+    //         // TODO: manage error
+    //         throw new BadRequestException(error)
+    //     }
+    // }
+
+    findOne(id: number) {
+        return `This action returns a #${id} professional`;
     }
 
     // async findAllByClient(params: {
@@ -105,17 +109,13 @@ export class ProfessionalService {
     //             select,
     //             skip,
     //             take
-    //         }) as Professional[] // le pongo el as para que no me de error ya que choca con el "gender_options"
+    //         }) as Professional[] // le pongo el as para que no me de error ya que choca con el "fiscal_status"
 
     //     } catch (error) {
     //         // TODO: manage error
     //         throw new BadRequestException(error)
     //     }
     // }
-
-    findOne(id: number) {
-        return `This action returns a #${id} professional`;
-    }
 
     async findFirst(params: {
         where: Prisma.professionalWhereInput,
@@ -129,7 +129,7 @@ export class ProfessionalService {
             return await this.prisma.professional.findFirstOrThrow({
                 where,
                 select
-            }) as Professional // le pongo el as para que no me de error ya que choca con el "gender_options"
+            }) as Professional // le pongo el as para que no me de error ya que choca con el "fiscal_status"
 
         } catch (error) {
             // TODO: manage error
@@ -152,7 +152,7 @@ export class ProfessionalService {
             return await this.prisma.professional.findUniqueOrThrow({
                 where: professionalWhereUniqueInput,
                 select
-            }) as Professional // le pongo el as para que no me de error ya que choca con el "gender_options"
+            }) as Professional // le pongo el as para que no me de error ya que choca con el "fiscal_status"
 
         } catch (error) {
             // TODO: manage error

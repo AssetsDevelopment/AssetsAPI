@@ -2,12 +2,14 @@ import { Args, Query, Mutation, Resolver, ResolveField, Parent } from "@nestjs/g
 import { AuthService } from "./auth.service";
 import { AuthResponse } from "./types/auth-response.type";
 import { LoguinInput } from "./dto";
-import { CurrentUser } from "./decorators";
+import { Auth, CurrentUser } from "./decorators";
 import { User } from "../user/entities/user.entity";
 import { Client } from "../client/entities/client.entity";
 import { ClientService } from "../client/client.service";
 import { Professional } from "../professional/entities/professional.entity";
 import { ProfessionalService } from "../professional/professional.service";
+import { user_types } from "./enums/user_types.enum";
+import { validateUserType } from "./utils/check-userType.util";
 
 @Resolver(() => AuthResponse)
 export class AuthResolver {
@@ -40,11 +42,16 @@ export class AuthResolver {
         const { user } = authResponse;
         const { user_id: client_id } = user; 
 
+        validateUserType({
+            userTypes: user.user_type,
+            requiredUserTypes: [user_types.client] 
+        })
+
         return this.clientService.findOneByUnique({
             clientWhereUniqueInput: {client_id}
         })
     }
-
+    
     @ResolveField(() => Professional, {name: 'Professional', nullable: true})
     async findProfessional(
         @Parent() authResponse: AuthResponse
@@ -53,9 +60,13 @@ export class AuthResolver {
         const { user } = authResponse;
         const { user_id: professional_id } = user; 
 
+        validateUserType({
+            userTypes: user.user_type,
+            requiredUserTypes: [user_types.professional] 
+        })
+
         return this.professionalService.findOneByUnique({
             professionalWhereUniqueInput: {professional_id}
         })
     }
-
 }

@@ -38,7 +38,7 @@ export class ClientService {
             return await this.prisma.client.findUniqueOrThrow({
                 where: clientWhereUniqueInput,
                 select
-            }) as Client
+            })
 
         } catch (error) {
             // TODO: manage error
@@ -59,7 +59,7 @@ export class ClientService {
             return await this.prisma.client.update({
                 where,
                 data
-            }) as Client
+            })
 
         } catch (error) {
             throw new BadRequestException(error)

@@ -1,6 +1,6 @@
-import { InputType, Int, Field, ID } from '@nestjs/graphql';
-import { IsBoolean, IsNumber, IsOptional, IsPositive, Matches, Max, MaxLength, MinLength } from 'class-validator';
-import { user_types } from 'src/modules/auth/enums/user_types.enum';
+import { InputType, Field } from '@nestjs/graphql';
+import { IsIn, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { gender_options } from 'src/modules/common/enums';
 
 @InputType()
 export class CreateUserInput {
@@ -16,6 +16,18 @@ export class CreateUserInput {
     @MinLength(2)
     @MaxLength(100)
     last_name: string
+
+    @Field(() => String)
+    @Matches("^[A-Za-zÁáÉéÍíÓóÚúÜüÑñ]+")
+    @MinLength(2)
+    @MaxLength(100)
+    profile: string
+
+    // TODO: Validar con regex
+    @Field(() => String, { nullable: true })
+    @IsOptional()
+    @MaxLength(30)
+    phone?: string
     
     // TODO: Validar con regex
     @Field(() => String)
@@ -27,4 +39,9 @@ export class CreateUserInput {
     @Field(() => String)
     @MaxLength(255)
     password: string
+
+    @Field(() => gender_options)
+    @IsString()
+    @IsIn([gender_options])
+    gender: gender_options
 }

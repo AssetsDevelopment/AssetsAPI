@@ -19,14 +19,14 @@ export class UserResolver {
         @Args('createUserInput') createUserInput: CreateUserInput
     ): Promise<User> {
         
-        // TODO: Necesito recibir por el Input datos para la tabla user y datos para la tabla client, corregir createUserInput
         return this.userService.create({
             data: {
                 client: {
                     create: {
-                        
+                        client_fk: client_id
                     }
-                }
+                },
+                ...createUserInput
             }
         });
     }

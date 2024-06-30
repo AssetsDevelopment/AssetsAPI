@@ -24,16 +24,4 @@ export class ClientResolver {
         })
     }
 
-    // TODO: @Auth(user_types.clientAdmin)
-    @Mutation(() => Client, { name: 'updateClient' })
-    async updateClient(
-        @Args('updateClientInput') updateClientInput: UpdateClientInput,
-        @CurrentUser('user_id') client_id: User['user_id']
-    ): Promise<Client> {
-
-        return this.clientService.update({
-            where: {client_id},
-            data: updateClientInput
-        })
-    }
 }

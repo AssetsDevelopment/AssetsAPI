@@ -9,15 +9,6 @@ export class Professional {
     professional_id: number
 
     @Field(() => String)
-    name: string;
-
-    @Field(() => String)
-    last_name: string;
-
-    @Field(() => gender_options)
-    gender: gender_options;
-
-    @Field(() => String)
     cuit: string
     
     @Field(() => fiscal_status)

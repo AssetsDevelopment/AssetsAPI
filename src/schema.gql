@@ -4,31 +4,15 @@
 
 type Professional {
   professional_id: ID!
-  name: String!
-  last_name: String!
-  gender: gender_options!
   cuit: String!
   fiscal_status: fiscal_status!
-  phone: String!
-  email: String!
   birthdate: DateTime!
   bank: String!
   bank_account: String!
   cbu: String!
   alias: String!
-  note: String!
-  is_active: Boolean!
-  user_type: user_types!
   created_at: DateTime!
   updated_at: DateTime!
-}
-
-"""Enumeración que representa el genero del usuario."""
-enum gender_options {
-  m
-  f
-  M
-  F
 }
 
 """Enumeración que representa los tipos fiscales."""
@@ -42,6 +26,36 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type Client {
+  client_id: ID!
+  client_fk: Int
+  is_admin: Boolean!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type User {
+  user_id: ID!
+  name: String!
+  last_name: String!
+  profile: String!
+  phone: String!
+  email: String!
+  gender: gender_options!
+  is_active: Boolean!
+  user_type: [user_types!]!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+"""Enumeración que representa el genero del usuario."""
+enum gender_options {
+  m
+  f
+  M
+  F
+}
+
 """
 Enumeración que representa los diferentes tipos de usuarios del sistema: `client` (coordinadores) y "professional` (profesionales).
 """
@@ -51,42 +65,15 @@ enum user_types {
   clientAdmin
 }
 
-type Client {
-  client_id: ID!
-  name: String!
-  last_name: String!
-  is_active: Boolean!
-  created_at: DateTime!
-  updated_at: DateTime!
-}
-
-type User {
-  user_id: ID!
-  client_fk: Int!
-  name: String!
-  last_name: String!
-  email: String!
-  is_admin: Boolean!
-  is_active: Boolean!
-  user_type: user_types!
-  created_at: DateTime!
-  updated_at: DateTime!
-}
-
-type UserResponse {
+type AuthResponse {
   token: String!
   user: User!
-  Client: Client!
-}
-
-type ProfessionalResponse {
-  token: String!
-  professional: Professional!
+  Client: Client
+  Professional: Professional
 }
 
 type Query {
-  revalidateClientAuth: UserResponse!
-  revalidateProfessionalAuth: ProfessionalResponse!
+  revalidateClientAuth: AuthResponse!
   Client: Client!
   findUsers(offset: Int = 0, limit: Int = 10, search: String): [User!]!
   findUser(user_id: ID!): User!
@@ -95,40 +82,34 @@ type Query {
 }
 
 type Mutation {
-  loginClient(loginInput: ClientLoguinInput!): UserResponse!
-  loginProfessional(loginInput: ProfessionalLoguinInput!): ProfessionalResponse!
-  updateClient(updateClientInput: UpdateClientInput!): Client!
+  Login(loginInput: LoguinInput!): AuthResponse!
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   changeAcitveUser(user_id: ID!): User!
 }
 
-input ClientLoguinInput {
-  email: String!
-  password: String!
-}
-
-input ProfessionalLoguinInput {
+input LoguinInput {
   email: String
   phone: String
   password: String!
 }
 
-input UpdateClientInput {
-  name: String
-  last_name: String
-}
-
 input CreateUserInput {
   name: String!
   last_name: String!
+  profile: String!
+  phone: String
   email: String!
   password: String!
+  gender: gender_options!
 }
 
 input UpdateUserInput {
   name: String
   last_name: String
+  profile: String
+  phone: String
   email: String
   password: String
+  gender: gender_options
 }
