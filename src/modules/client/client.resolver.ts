@@ -13,7 +13,7 @@ export class ClientResolver {
         private readonly clientService: ClientService
     ) {}
 
-    // TODO: @Auth(user_types.clientAdmin)
+    @Auth(user_types.client)
     @Query(() => Client, { name: 'Client' })
     async Client(
         @CurrentUser('user_id') client_id: User['user_id']

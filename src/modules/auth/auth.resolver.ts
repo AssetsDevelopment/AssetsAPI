@@ -27,8 +27,9 @@ export class AuthResolver {
         return this.authService.loginUser(loginInput);
     }
 
-    @Query(() => AuthResponse, { name: 'revalidateClientAuth' })
-    revalidateClientToken(
+    @Auth(user_types.client, user_types.professional)
+    @Query(() => AuthResponse, { name: 'revalidateToken' })
+    revalidateToken(
         @CurrentUser() user: User
     ): AuthResponse {
         return this.authService.revalidateToken(user);

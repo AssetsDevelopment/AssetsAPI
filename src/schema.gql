@@ -73,7 +73,7 @@ type AuthResponse {
 }
 
 type Query {
-  revalidateClientAuth: AuthResponse!
+  revalidateToken: AuthResponse!
   Client: Client!
   findUsers(offset: Int = 0, limit: Int = 10, search: String): [User!]!
   findUser(user_id: ID!): User!
