@@ -72,6 +72,18 @@ type AuthResponse {
   Professional: Professional
 }
 
+type Clienthasprofessional {
+  client_fk: ID!
+  professional_fk: ID!
+  sender: user_types!
+  is_accept: Boolean!
+  is_active: Boolean!
+  created_at: DateTime!
+  updated_at: DateTime!
+  User: User!
+  Professional: Professional!
+}
+
 type Query {
   revalidateToken: AuthResponse!
   Client: Client!
@@ -79,6 +91,8 @@ type Query {
   findUser(user_id: ID!): User!
   User: User!
   Professional: Professional!
+  findProfessional(professional_id: ID!): Clienthasprofessional!
+  findProfessionals(offset: Int = 0, limit: Int = 10, search: String): [Clienthasprofessional!]!
 }
 
 type Mutation {

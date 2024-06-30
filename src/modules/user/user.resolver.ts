@@ -25,7 +25,7 @@ export class UserResolver {
         })
     }
 
-    @Auth(user_types.client)
+    @Auth(user_types.client, user_types.professional)
     @Mutation(() => User, { name: 'updateUser' })
     async updateUser(
         @Args('updateUserInput') updateClientInput: UpdateUserInput,

@@ -31,92 +31,6 @@ export class ProfessionalService {
         }
     }
 
-    // async findAll(params: {
-    //     where: Prisma.professionalWhereInput,
-    //     select?: Prisma.professionalSelect,
-    //     skip?: Prisma.professionalFindManyArgs['skip'],
-    //     take?: Prisma.professionalFindManyArgs['take'],
-    // }): Promise<Professional[] | Professional> {
-
-    //     const { where, select, skip, take } = params
-    //     const { name } = where
-
-    //     if (name) where.name = {
-    //         contains: name as string,
-    //         mode: 'insensitive'
-    //     }
-        
-    //     try {
-
-    //         return await this.prisma.professional.findMany({
-    //             where,
-    //             select,
-    //             skip,
-    //             take
-    //         }) as Professional[] // le pongo el as para que no me de error ya que choca con el "fiscal_status"
-
-    //     } catch (error) {
-    //         // TODO: manage error
-    //         throw new BadRequestException(error)
-    //     }
-    // }
-
-    findOne(id: number) {
-        return `This action returns a #${id} professional`;
-    }
-
-    // async findAllByClient(params: {
-    //     clientWhereUniqueInput: Prisma.clientWhereUniqueInput, 
-    //     where: Prisma.professionalWhereInput,
-    //     select?: Prisma.professionalSelect,
-    //     skip?: Prisma.professionalFindManyArgs['skip'],
-    //     take?: Prisma.professionalFindManyArgs['take'],
-    // }): Promise<Professional[] | Professional> {
-
-    //     const { 
-    //         clientWhereUniqueInput,
-    //         where,
-    //         select,
-    //         skip, 
-    //         take 
-    //     } = params
-    //     const { name } = where
-
-    //     if (name) where.name = {
-    //         contains: name as string,
-    //         mode: 'insensitive'
-    //     }
-        
-    //     try {
-
-    //         await this.prisma.client_has_professional.findMany({
-    //             where: {
-    //                 client_fk,
-    //                 professional_fk
-    //             }
-    //         })
-
-
-
-    //         return await this.prisma.professional.findMany({
-    //             where: {
-    //                 work_invitation: {
-    //                     some: {
-                            
-    //                     }
-    //                 }
-    //             },
-    //             select,
-    //             skip,
-    //             take
-    //         }) as Professional[] // le pongo el as para que no me de error ya que choca con el "fiscal_status"
-
-    //     } catch (error) {
-    //         // TODO: manage error
-    //         throw new BadRequestException(error)
-    //     }
-    // }
-
     async findFirst(params: {
         where: Prisma.professionalWhereInput,
         select?: Prisma.professionalSelect
@@ -160,6 +74,7 @@ export class ProfessionalService {
         }
     }
 
+    // CORREGIDO
     async update(params: {
         where: Prisma.professionalWhereUniqueInput, 
         data: Prisma.professionalUpdateInput,

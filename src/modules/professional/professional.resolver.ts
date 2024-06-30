@@ -12,11 +12,6 @@ export class ProfessionalResolver {
 
     constructor(private readonly professionalService: ProfessionalService) {}
 
-//   @Query(() => [Professional], { name: 'professional' })
-//   findAll() {
-//     return this.professionalService.findAll();
-//   }
-
     @Auth(user_types.professional)
     @Query(() => Professional, { name: 'Professional' })
     async Professional(

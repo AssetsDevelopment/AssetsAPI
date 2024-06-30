@@ -10,8 +10,9 @@ import {
     ClientModule,
     ProfessionalModule,
     CommonModule,
-    ClientHasProfessionalModule
+    // ClientHasProfessionalModule
 } from './modules';
+import { ClienthasprofessionalModule } from './modules/clienthasprofessional/clienthasprofessional.module';
 
 @Module({
     imports: [
@@ -29,7 +30,8 @@ import {
         ClientModule,
         ProfessionalModule,
         CommonModule,
-        ClientHasProfessionalModule,
+        ClienthasprofessionalModule,
+        // ClientHasProfessionalModule,
     ],
     controllers: [],
     providers: [],

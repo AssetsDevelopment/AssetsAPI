@@ -6,6 +6,7 @@ import { UserService } from '../user/user.service';
 import { CreateUserByClientInput, UpdateUserByClientInput } from './dto';
 import { PaginationArgs, SearchArgs } from '../common/dto';
 import { ParseIntPipe } from '@nestjs/common';
+import { Client } from './entities/client.entity';
 
 @Resolver(() => User)
 export class UserByClientResolver {
@@ -17,7 +18,7 @@ export class UserByClientResolver {
     @Auth(user_types.clientAdmin)
     @Mutation(() => User, { name: 'createUser' })
     async createUser(
-        @CurrentUser('user_id') client_id: User['user_id'],
+        @CurrentUser('user_id') client_id: Client['client_id'],
         @Args('CreateUserByClientInput') CreateUserByClientInput: CreateUserByClientInput
     ): Promise<User> {
         
@@ -30,7 +31,7 @@ export class UserByClientResolver {
     @Auth(user_types.clientAdmin)
     @Query(() => [User], { name: 'findUsers' })
     async findUsers(
-        @CurrentUser('user_id') client_fk: User['user_id'],
+        @CurrentUser('user_id') client_fk: Client['client_fk'],
         @Args() paginationArgs: PaginationArgs,
         @Args() searchArgs: SearchArgs
     ): Promise<User[] | User> {
@@ -53,7 +54,7 @@ export class UserByClientResolver {
     @Query(() => User, { name: 'findUser' })
     async findUser(
         @Args('user_id', { type: () => ID }, ParseIntPipe) user_id: User['user_id'],
-        @CurrentUser('user_id') client_fk: User['user_id'],
+        @CurrentUser('user_id') client_fk: Client['client_fk'],
     ): Promise<User> {
 
         return this.userService.findOneByUnique({
@@ -70,7 +71,7 @@ export class UserByClientResolver {
     @Mutation(() => User, { name: 'updateUserByClient' })
     async updateUser(
         @Args('UpdateUserByClientInput') UpdateUserByClientInput: UpdateUserByClientInput,
-        @CurrentUser('user_id') client_fk: User['user_id']
+        @CurrentUser('user_id') client_fk: Client['client_fk']
     ): Promise<User> {
 
         const { user_id, ...rest} = UpdateUserByClientInput;
@@ -91,7 +92,7 @@ export class UserByClientResolver {
     async changeAcitveUser(
         @Args('user_id', { type: () => ID }, ParseIntPipe) user_id: User['user_id'],
         @Args('is_active', { type: () => Boolean }) is_active: User['is_active'],
-        @CurrentUser('user_id') client_fk: User['user_id']
+        @CurrentUser('user_id') client_fk: Client['client_fk']
     ): Promise<User> {
 
         return this.userService.changeAcitveUser({

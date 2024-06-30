@@ -71,9 +71,7 @@ export class AuthService {
 
         if (!user.is_active) throw new UnauthorizedException('User is not active');
 
-        return await this.userService.findOneByUnique({
-            userWhereUniqueInput: {user_id}
-        });
+        return user;
     }
 
     // CORREGIDO
