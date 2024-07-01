@@ -2,15 +2,31 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Company {
+  company_id: ID!
+  client_fk: Int!
+  name: String!
+  cuit: String
+  note: String
+  is_active: Boolean!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Professional {
   professional_id: ID!
-  cuit: String!
-  fiscal_status: fiscal_status!
-  birthdate: DateTime!
-  bank: String!
-  bank_account: String!
-  cbu: String!
-  alias: String!
+  cuit: String
+  fiscal_status: fiscal_status
+  birthdate: DateTime
+  bank: String
+  bank_account: String
+  cbu: String
+  alias: String
   created_at: DateTime!
   updated_at: DateTime!
 }
@@ -20,11 +36,6 @@ enum fiscal_status {
   monotributista
   responsable_inscripto
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 type Client {
   client_id: ID!
@@ -93,15 +104,20 @@ type Query {
   Professional: Professional!
   findProfessional(professional_id: ID!): Clienthasprofessional!
   findProfessionals(offset: Int = 0, limit: Int = 10, search: String): [Clienthasprofessional!]!
+  FindCompanies(offset: Int = 0, limit: Int = 10, search: String): [Company!]!
+  findCompany(company_id: ID!): Company!
 }
 
 type Mutation {
   Login(loginInput: LoguinInput!): AuthResponse!
-  createUser(CreateUserByClientInput: CreateUserByClientInput!): User!
-  updateUserByClient(UpdateUserByClientInput: UpdateUserByClientInput!): User!
+  createUser(createUserByClientInput: CreateUserByClientInput!): User!
+  updateUserByClient(updateUserByClientInput: UpdateUserByClientInput!): User!
   changeAcitveUser(user_id: ID!, is_active: Boolean!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   updateProfessional(updateProfessionalInput: UpdateProfessionalInput!): Professional!
+  createCompany(createCompanyInput: CreateCompanyInput!): Company!
+  updateCompany(updateCompanyInput: UpdateCompanyInput!): Company!
+  changeAcitveCompany(company_id: ID!, is_active: Boolean!): Company!
 }
 
 input LoguinInput {
@@ -145,4 +161,17 @@ input UpdateProfessionalInput {
   bank_account: String
   cbu: String
   alias: String
+}
+
+input CreateCompanyInput {
+  name: String!
+  cuit: String
+  note: String
+}
+
+input UpdateCompanyInput {
+  name: String
+  cuit: String
+  note: String
+  company_id: ID!
 }

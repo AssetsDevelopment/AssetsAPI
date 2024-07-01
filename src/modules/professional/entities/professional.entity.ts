@@ -1,5 +1,5 @@
 import { ObjectType, Field, Int, ID } from '@nestjs/graphql';
-import { fiscal_status, gender_options } from 'src/modules/common/enums';
+import { fiscal_status } from 'src/modules/common/enums';
 
 // CORREGIDO
 @ObjectType()
@@ -8,26 +8,26 @@ export class Professional {
     @Field(() => ID)
     professional_id: number
 
-    @Field(() => String)
-    cuit: string
+    @Field(() => String, {nullable: true})
+    cuit?: string
     
-    @Field(() => fiscal_status)
-    fiscal_status: fiscal_status
+    @Field(() => fiscal_status, {nullable: true})
+    fiscal_status?: fiscal_status
     
-    @Field(() => Date)
-    birthdate: Date
+    @Field(() => Date, {nullable: true})
+    birthdate?: Date
 
-    @Field(() => String)
-    bank: string
+    @Field(() => String, {nullable: true})
+    bank?: string
 
-    @Field(() => String)
-    bank_account: string
+    @Field(() => String, {nullable: true})
+    bank_account?: string
 
-    @Field(() => String)
-    cbu: string
+    @Field(() => String, {nullable: true})
+    cbu?: string
     
-    @Field(() => String)
-    alias: string
+    @Field(() => String, {nullable: true})
+    alias?: string
 
     @Field(() => Date)
     created_at: Date

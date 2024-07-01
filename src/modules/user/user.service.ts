@@ -14,23 +14,7 @@ export class UserService {
         private readonly prisma: PrismaService
     ) {}
 
-    // async create(params: {
-    //     data: Prisma.userCreateInput
-    // }):Promise<User> {
-
-    //     const { data } = params
-
-    //     try {
-            
-    //         return await this.prisma.user.create({
-    //             data
-    //         }) as User // le pongo el as para que no me de error ya que choca con el "user_type"
-
-    //     } catch (error) {
-    //         throw new BadRequestException(error)
-    //     }
-    // }
-
+    // CORREGIDO
     async createUserClient(params: {
         client_id: Prisma.clientWhereUniqueInput['client_id'],
         data: Prisma.userCreateInput

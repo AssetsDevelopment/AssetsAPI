@@ -32,25 +32,4 @@ export class Clienthasprofessional {
 
     @Field(() => Professional)
     Professional: Professional
-    
-    // @Field(() => ID)
-    // client_fk: number;
-
-    // @Field(() => ID)
-    // professional_fk: number;
-
-    // @Field(() => user_types)
-    // sender: user_types;
-
-    // @Field(() => Boolean)
-    // is_accept: boolean;
-
-    // @Field(() => Boolean)
-    // is_active: boolean;
-    
-    // @Field(() => Date)
-    // created_at: Date;
-
-    // @Field(() => Date)
-    // updated_at: Date;
 }

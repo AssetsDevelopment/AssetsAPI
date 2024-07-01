@@ -19,16 +19,16 @@ export class UserByClientResolver {
     @Mutation(() => User, { name: 'createUser' })
     async createUser(
         @CurrentUser('user_id') client_id: Client['client_id'],
-        @Args('CreateUserByClientInput') CreateUserByClientInput: CreateUserByClientInput
+        @Args('createUserByClientInput') createUserByClientInput: CreateUserByClientInput
     ): Promise<User> {
         
         return this.userService.createUserClient({
             client_id,
-            data: CreateUserByClientInput
+            data: createUserByClientInput
         });
     }
 
-    @Auth(user_types.clientAdmin)
+    @Auth(user_types.client)
     @Query(() => [User], { name: 'findUsers' })
     async findUsers(
         @CurrentUser('user_id') client_fk: Client['client_fk'],
@@ -41,16 +41,17 @@ export class UserByClientResolver {
             where: {
                 client: {
                     client_fk,
-                    is_admin: false
+                    is_admin: false,
                 }, 
-                profile, 
+                profile,
+                is_active: true
             },
             skip: paginationArgs.offset,
             take: paginationArgs.limit,
         });
     }
 
-    @Auth(user_types.clientAdmin)
+    @Auth(user_types.client)
     @Query(() => User, { name: 'findUser' })
     async findUser(
         @Args('user_id', { type: () => ID }, ParseIntPipe) user_id: User['user_id'],
@@ -70,11 +71,11 @@ export class UserByClientResolver {
     @Auth(user_types.client)
     @Mutation(() => User, { name: 'updateUserByClient' })
     async updateUser(
-        @Args('UpdateUserByClientInput') UpdateUserByClientInput: UpdateUserByClientInput,
+        @Args('updateUserByClientInput') updateUserByClientInput: UpdateUserByClientInput,
         @CurrentUser('user_id') client_fk: Client['client_fk']
     ): Promise<User> {
 
-        const { user_id, ...rest} = UpdateUserByClientInput;
+        const { user_id, ...rest} = updateUserByClientInput;
 
         return this.userService.update({
             where: {

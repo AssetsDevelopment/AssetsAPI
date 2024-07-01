@@ -50,7 +50,10 @@ export class ClienthasprofessionalResolver {
 
         return await this.clienthasprofessionalService.findAll({
             whereUser: {profile},
-            where: {client_fk: client_id},
+            where: {
+                client_fk: client_id,
+                is_active: true
+            },
             skip: paginationArgs.offset,
             take: paginationArgs.limit,
         });
